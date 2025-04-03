@@ -37,6 +37,13 @@ class CruceDatosGenerarArchivo:
         self.txt_controllers.rowconfigure(2, weight=1)
         self.txt_controllers.columnconfigure(0, weight=1)
         
+        self.validate_position_txt = self.opcion1_frame.register(self.validate_position_txt)
+        txt_start_position = tk.Entry(self.txt_controllers, validate="key", validatecommand=(self.validate_position_txt, '%P'))
+        txt_end_position = tk.Entry(self.txt_controllers,  validate="key", validatecommand=(self.validate_position_txt, '%P'))
+        
+        txt_start_position.grid(row=1, column=0)
+        txt_end_position.grid(row=2, column=0)
+        
         self.columns_options = ttk.Combobox(self.excel_controllers, state="readonly")
         # columns_options.place(x=50, y=50)
         self.columns_options.grid(row=1, column=0)
@@ -54,6 +61,11 @@ class CruceDatosGenerarArchivo:
         # Botón para procesar archivos
         process_files_button = tk.Button(self.opcion1_frame, text="Procesar archivos", command=self.on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
         process_files_button.grid(row=2, columnspan=2)
+        
+    def validate_position_txt(self, value):
+        if value == "" or value.isdigit():
+            return True
+        return False
         
     def on_open_excel_button_click(self):
         self.excel_file = filedialog.askopenfilename(title="Selecciona una archivo")
