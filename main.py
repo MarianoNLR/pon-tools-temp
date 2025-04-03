@@ -60,20 +60,20 @@ def show_option1_frame():
     opcion1_frame =tk.Frame(main_content, bg="#212121", height=300)
     opcion1_frame.grid(row=0, column=0, sticky="nsew")
     opcion1_frame.grid_rowconfigure(0, weight=1)
-    opcion1_frame.grid_rowconfigure(1, weight=2)
-    opcion1_frame.grid_rowconfigure(2, weight=1)
+    opcion1_frame.grid_rowconfigure(1, weight=1)
+    opcion1_frame.grid_rowconfigure(2, weight=3)
     opcion1_frame.grid_columnconfigure(0, weight=1)
     opcion1_frame.grid_columnconfigure(1, weight=1)
     
-    open_excel_button = ttk.Button(opcion1_frame ,text="Seleccionar Excel", command=on_open_excel_button_click)
-    open_txt_button = ttk.Button(opcion1_frame, text="Seleccionar Txt", command=on_open_txt_button_click)
+    open_excel_button = tk.Button(opcion1_frame ,text="Seleccionar Excel", command=on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3)
+    open_txt_button = tk.Button(opcion1_frame, text="Seleccionar Txt", command=on_open_txt_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3)
     open_excel_button.grid(row=1, column=0)
     open_txt_button.grid(row=1, column=1)
     
     label = tk.Label(opcion1_frame, text="Bienvenido a la Opcion 1", wraplength=350, font=("Arial", 40), bg="#212121", fg="white")
     label.grid(row=0, column=0, columnspan=2, sticky="nsew")
     
-    process_files_button = ttk.Button(opcion1_frame, text="Procesar archivos", command=on_process_files_button_click)
+    process_files_button = tk.Button(opcion1_frame, text="Procesar archivos", command=on_process_files_button_click)
     process_files_button.grid(row=2, columnspan=2)
     pass
 
