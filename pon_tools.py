@@ -1,5 +1,8 @@
 import pandas as pd
 import openpyxl
+import tkinter as tk
+from tkinter import filedialog
+import os
 
 def create_excel(df, data):
     #Crear libro de excel
@@ -18,5 +21,14 @@ def create_excel(df, data):
         if item.index == 0:
             continue
         sheet.append(tuple(item))
-    wb.save("./result.xlsx")
+    file_path = filedialog.asksaveasfilename(
+        defaultextension=".xlsx",
+        filetypes=[("Text files", "*.xlsx"), ("All files", "*.*")],
+        title="Guardar archivo"
+    )
+    
+    wb.save(file_path)
+    
+    if file_path:
+        os.startfile(file_path)
     #return wb    
