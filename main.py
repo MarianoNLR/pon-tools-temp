@@ -57,22 +57,29 @@ def show_option1_frame():
     for frame in main_content.winfo_children():
         frame.destroy()
     
+    # Creacion de frames
     opcion1_frame =tk.Frame(main_content, bg="#212121", height=300)
     opcion1_frame.grid(row=0, column=0, sticky="nsew")
+    
+    # Configuracion de grid opcion 1
     opcion1_frame.grid_rowconfigure(0, weight=1)
     opcion1_frame.grid_rowconfigure(1, weight=1)
     opcion1_frame.grid_rowconfigure(2, weight=3)
     opcion1_frame.grid_columnconfigure(0, weight=1)
     opcion1_frame.grid_columnconfigure(1, weight=1)
     
+    ### Contenido principal frame opcion 1
+    # Botones de seleccion de archivos
     open_excel_button = tk.Button(opcion1_frame ,text="Seleccionar Excel", command=on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
     open_txt_button = tk.Button(opcion1_frame, text="Seleccionar Txt", command=on_open_txt_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
     open_excel_button.grid(row=1, column=0)
     open_txt_button.grid(row=1, column=1)
     
+    # Titulo del frame
     label = tk.Label(opcion1_frame, text="Bienvenido a la Opcion 1", wraplength=350, font=("Arial", 40), bg="#212121", fg="white")
     label.grid(row=0, column=0, columnspan=2, sticky="nsew")
     
+    # Botón para procesar archivos
     process_files_button = tk.Button(opcion1_frame, text="Procesar archivos", command=on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
     process_files_button.grid(row=2, columnspan=2)
     pass
@@ -83,6 +90,7 @@ if __name__ == "__main__":
     root.title("PON Tools")
     root.geometry("400x300")
     
+    # Configuracion grid ventana principal
     root.grid_columnconfigure(0, weight=1, uniform="equal")
     root.grid_columnconfigure(1, weight=4, uniform="equal")
     
@@ -94,6 +102,7 @@ if __name__ == "__main__":
     main_content.grid_rowconfigure(0, weight=1)
     main_content.grid_columnconfigure(0, weight=1)
     
+    # Inicializar frame de bienvenida en contenedor main
     show_welcome_frame()
     
     ### Barra lateral izquierda
