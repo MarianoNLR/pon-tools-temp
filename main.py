@@ -2,7 +2,6 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-from cruce_datos_generar_archivo import CruceDatosGenerarArchivo
 from components.sidebar import Sidebar
 
 class MainApp:
@@ -12,7 +11,7 @@ class MainApp:
         ### Config ventana principal
         self.root = tk.Tk(screenName="PON Tools")
         self.root.title("PON Tools")
-        self.root.geometry("500x600")
+        self.root.geometry("900x600")
         self.root.minsize(width=500, height=600)
         
         # Configuracion grid ventana principal
