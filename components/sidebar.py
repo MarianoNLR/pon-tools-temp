@@ -1,5 +1,5 @@
 import tkinter as tk
-from cruce_datos_generar_archivo import CruceDatosGenerarArchivo
+from views.cruce_datos_generar_archivo import CruceDatosGenerarArchivo
 
 class Sidebar():
     def __init__(self, root, main_content):
