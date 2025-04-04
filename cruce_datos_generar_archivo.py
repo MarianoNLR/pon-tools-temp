@@ -11,7 +11,7 @@ class CruceDatosGenerarArchivo:
             frame.destroy()
         
         # Creacion de frames
-        self.opcion1_frame =tk.Frame(main_frame, bg="#212121", height=300)
+        self.opcion1_frame = tk.Frame(main_frame, bg="#212121", height=300)
         self.opcion1_frame.grid(row=0, column=0, sticky="nsew")
         
         # Configuracion de grid opcion 1
@@ -41,18 +41,18 @@ class CruceDatosGenerarArchivo:
         txt_start_position = tk.Entry(self.txt_controllers, validate="key", validatecommand=(self.validate_position_txt, '%P'))
         txt_end_position = tk.Entry(self.txt_controllers,  validate="key", validatecommand=(self.validate_position_txt, '%P'))
         
-        txt_start_position.grid(row=1, column=0)
-        txt_end_position.grid(row=2, column=0)
+        txt_start_position.grid(row=1, column=0, sticky="n")
+        txt_end_position.grid(row=1, column=0)
         
         self.columns_options = ttk.Combobox(self.excel_controllers, state="readonly")
         # columns_options.place(x=50, y=50)
-        self.columns_options.grid(row=1, column=0)
+        self.columns_options.grid(row=1, column=0, sticky="n")
         ### Contenido principal frame opcion 1
         # Botones de seleccion de archivos
         open_excel_button = tk.Button(self.excel_controllers ,text="Seleccionar Excel", command=self.on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
         open_txt_button = tk.Button(self.txt_controllers, text="Seleccionar Txt", command=self.on_open_txt_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        open_excel_button.grid(row=0, column=0)
-        open_txt_button.grid(row=0, column=0)
+        open_excel_button.grid(row=0, column=0, sticky="n")
+        open_txt_button.grid(row=0, column=0, sticky="n")
         
         # Titulo del frame
         label = tk.Label(self.opcion1_frame, text="Bienvenido a la Opcion 1", wraplength=350, font=("Arial", 40), bg="#212121", fg="white")
