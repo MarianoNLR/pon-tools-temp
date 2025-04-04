@@ -2,7 +2,6 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-import pon_tools
 from cruce_datos_generar_archivo import CruceDatosGenerarArchivo
 from components.sidebar import Sidebar
 
