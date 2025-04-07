@@ -88,12 +88,8 @@ class CruceDatosGenerarArchivo():
     def update_start_position_txt(self, value):
         print(value)
         print(self.txt_start_position.get())
-        # if self.validate_position_txt(value):
-        #     self.txt_start_position = value
         
     def update_end_position_txt(self, value):
-        # if self.validate_position_txt(value):
-        #     self.txt_end_position = value
         print(value)
         print(self.txt_end_position["value"])
         
@@ -113,7 +109,6 @@ class CruceDatosGenerarArchivo():
         ### Cargo las columnas como String por el momento porque sino
         ### algunos datos se guardan con notación cientifica en el nuevo excel ###
         self.excel_df = pd.read_excel(self.excel_file).astype(str)
-        #self.excel_df["DNI"] = self.excel_df["DNI"].astype(str)
         
         #Cargar combobox con columnas del excel seleccionado
         self.columns_options['values'] = self.excel_df.columns.tolist()
@@ -126,11 +121,14 @@ class CruceDatosGenerarArchivo():
         else:
             print("No se seleccionó ningun archivo.")
         # Leer txt y cargar en data frame
-        with open(self.txt_file, "r") as txt:
+        with open(self.txt_file, "r", encoding="cp1252", newline="") as txt:
             self.txt_data = []
             # Leer archivo de texto linea por linea
-            for line in txt:
-                self.txt_data.append(line.strip())
+            # for line in txt:
+            #     self.txt_data.append(line.strip())
+            self.txt_data = txt.readlines()
+            self.txt_data = [line.replace("\r\n", "\n") for line in self.txt_data]
+        print("XDDDDDDD: ", self.txt_data)
 
     def on_process_files_button_click(self):
         # Obtener las coincidencias entre excel y txt por DNI
@@ -144,42 +142,34 @@ class CruceDatosGenerarArchivo():
         # no volver a recorrerlo
         # el problema es que al cargar no tengo las posiciones aún
         for i, line in enumerate(self.txt_data, start=0):
-            line = line.strip()
-            # line[int(self.txt_start_position.get())-1:int(self.txt_end_position.get())].str.match("^[0-9]+$")
             if not re.match("^[0-9]+$", line[int(self.txt_start_position.get())-1:int(self.txt_end_position.get())]):
                 self.txt_errors.append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({self.txt_start_position.get()}, {self.txt_end_position.get()}) no es numérico.", "row": i+1})
         
         print(self.txt_errors)
-        self.write_excel()
+        self.write_txt()
         
-    def write_excel(self):
-        #Crear libro de excel
-        wb = openpyxl.Workbook()
-        sheet = wb.active
-        sheet.title = "Hoja"
-
-        sheet.append(tuple(self.excel_df.columns))
-
-        # Agregar coincidencias al nuevo excel
+    def write_txt(self):
+        # Agregar coincidencias al nuevo txt
         txt_data_between_entry_index = []
         for i in self.txt_data:
             txt_data_between_entry_index.append(i[int(self.txt_start_position.get())-1:int(self.txt_end_position.get())])
-        
-        coincidences = [self.excel_df[self.columns_options.get()].astype("str").isin(txt_data_between_entry_index)]
-
-        for item in self.excel_df[coincidences[0]].itertuples(index=False):
-            print(item, type(item))
-            sheet.append(tuple(item))
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Text files", "*.xlsx"), ("All files", "*.*")],
+            
+        save_path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
             title="Guardar archivo"
         )
         
-        wb.save(file_path)
+        coincidences = self.excel_df[self.columns_options.get()].astype("str").isin(txt_data_between_entry_index)
+        if save_path:
+            with open(save_path, 'w', encoding="utf-8", errors="ignore", newline="\n") as file:
+                print(self.excel_df[coincidences][self.columns_options.get()].to_list())
+                for row in self.txt_data:
+                    if row[int(self.txt_start_position.get())-1:int(self.txt_end_position.get())] in self.excel_df[coincidences][self.columns_options.get()].tolist(): 
+                        file.write(f"{row}")
         
-        if file_path:
-            os.startfile(file_path)
+        if save_path:
+            os.startfile(save_path)
         
     def on_combobox_change(self, event):    
         print(self.columns_options.get())
