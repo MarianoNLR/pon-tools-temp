@@ -36,6 +36,8 @@ class CruceDatosGenerarArchivo():
         self.excel_controllers.rowconfigure(0, weight=1)
         self.excel_controllers.rowconfigure(1, weight=1)
         self.excel_controllers.rowconfigure(2, weight=1)
+        self.excel_controllers.rowconfigure(3, weight=1)
+        self.excel_controllers.rowconfigure(4, weight=1)
         self.excel_controllers.columnconfigure(0, weight=1)
         
         self.txt_controllers = tk.Frame(self.opcion1_frame, bg="#212121")
@@ -44,6 +46,9 @@ class CruceDatosGenerarArchivo():
         self.txt_controllers.rowconfigure(0, weight=1)
         self.txt_controllers.rowconfigure(1, weight=1)
         self.txt_controllers.rowconfigure(2, weight=1)
+        self.txt_controllers.rowconfigure(3, weight=1)
+        self.txt_controllers.rowconfigure(4, weight=1)
+        self.txt_controllers.rowconfigure(5, weight=1)
         self.txt_controllers.columnconfigure(0, weight=1)
         
         self.validate_position_txt = self.opcion1_frame.register(self.validate_position_txt)
@@ -52,13 +57,18 @@ class CruceDatosGenerarArchivo():
         self.txt_start_position = tk.Entry(self.txt_controllers, validate="key", validatecommand=(self.validate_position_txt, '%P'))
         self.txt_end_position = tk.Entry(self.txt_controllers,  validate="key", validatecommand=(self.validate_position_txt, '%P'))
 
-        self.txt_start_position.grid(row=1, column=0, sticky="n")
-        self.txt_end_position.grid(row=1, column=0)
+        self.txt_start_position_label = tk.Label(self.txt_controllers, text="Posición inicio: ", fg="white", bg="#212121", font=("Arial", 15))
+        self.txt_start_position_label.grid(row=2, column=0, sticky="s")
+        self.txt_end_position_label = tk.Label(self.txt_controllers, text="Posición fin: ", fg="white", bg="#212121", font=("Arial", 15))
+        self.txt_end_position_label.grid(row=4, column=0, sticky="s")
+        self.txt_start_position.grid(row=3, column=0, sticky="n")
+        self.txt_end_position.grid(row=5, column=0, sticky="n")
         
+        self.columns_options_label =tk.Label(self.excel_controllers, text="Columnas: ", fg="white", bg="#212121", font=("Arial", 15))
         self.columns_options = ttk.Combobox(self.excel_controllers, state="readonly")
         self.columns_options.bind("<<ComboboxSelected>>", self.on_combobox_change)
-        
-        self.columns_options.grid(row=1, column=0, sticky="n")
+        self.columns_options_label.grid(row=1, column=0, sticky="s")
+        self.columns_options.grid(row=2, column=0, sticky="n")
         
         ### Contenido principal frame opcion 1
         # Botones de seleccion de archivos
@@ -68,7 +78,7 @@ class CruceDatosGenerarArchivo():
         open_txt_button.grid(row=0, column=0, sticky="n")
         
         # Titulo del frame
-        label = tk.Label(self.opcion1_frame, text="Bienvenido a la Opcion 1", wraplength=350, font=("Arial", 40), bg="#212121", fg="white")
+        label = tk.Label(self.opcion1_frame, text="Cruce de Datos Excel - Txt y Generación de Txt", wraplength=500, font=("Arial", 40), bg="#212121", fg="white")
         label.grid(row=0, column=0, columnspan=2, sticky="nsew")
         
         # Botón para procesar archivos
