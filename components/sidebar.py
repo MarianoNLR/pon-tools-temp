@@ -1,5 +1,5 @@
 import tkinter as tk
-from views.cruce_datos_generar_archivo import CruceDatosGenerarArchivo
+from views.excel_and_txt_to_txt_view import ExcelAndTxtToTxtView
 
 class Sidebar():
     def __init__(self, root, main_content):
@@ -21,7 +21,7 @@ class Sidebar():
         self.sidebar_opt4.pack(fill="x", pady=1)
         
     def on_click_option1(self):
-        CruceDatosGenerarArchivo(self.main_content)
+        ExcelAndTxtToTxtView(self.main_content)
         
     ### Mostrar Frame de Opcion 2
     def show_option2_frame(self):
