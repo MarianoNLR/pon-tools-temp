@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from controllers.excel_and_txt_to_txt_controller import ExcelAndTxtToTxtController
+import tkintertools as tkt
+import customtkinter as ctk
 import re
 
 
@@ -20,13 +22,19 @@ class ExcelAndTxtToTxtView():
         self.cruce_datos_generar_archivo_frame = tk.Frame(main_frame, bg="#212121", height=300)
         self.cruce_datos_generar_archivo_frame.grid(row=0, column=0, sticky="nsew")
         
-        # Configuracion de grid ExcelAndTxtToTxtView
+        # Titulo del frame
+        label = tk.Label(self.cruce_datos_generar_archivo_frame, text="Cruce de Datos Excel - Txt y Generación de Txt", wraplength=500, font=("Arial", 40), bg="#212121", fg="white")
+        label.grid(row=0, column=0, columnspan=2, sticky="nsew")
+        
+        #### Configuracion de grid ExcelAndTxtToTxtView
         self.cruce_datos_generar_archivo_frame.grid_rowconfigure(0, weight=1)
         self.cruce_datos_generar_archivo_frame.grid_rowconfigure(1, weight=1, minsize=300)
         self.cruce_datos_generar_archivo_frame.grid_rowconfigure(2, weight=3)
+        self.cruce_datos_generar_archivo_frame.grid_rowconfigure(3, weight=3, minsize=300)
         self.cruce_datos_generar_archivo_frame.grid_columnconfigure(0, weight=1)
         self.cruce_datos_generar_archivo_frame.grid_columnconfigure(1, weight=1)
         
+        # Seccion Excel
         self.excel_controllers = tk.Frame(self.cruce_datos_generar_archivo_frame, bg="#212121")
         self.excel_controllers.grid(row=1, column=0, sticky="nsew")
         
@@ -37,8 +45,19 @@ class ExcelAndTxtToTxtView():
         self.excel_controllers.rowconfigure(4, weight=1)
         self.excel_controllers.columnconfigure(0, weight=1)
         
+        open_excel_button = tk.Button(self.excel_controllers ,text="Seleccionar Excel", command=self.on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
+        
+        self.columns_options_label =tk.Label(self.excel_controllers, text="Columnas: ", fg="white", bg="#212121", font=("Arial", 15))
+        self.columns_options = ttk.Combobox(self.excel_controllers, state="readonly")
+        self.columns_options.set("Selecciona una columna")
+        self.columns_options.bind("<<ComboboxSelected>>", self.on_combobox_change)
+        self.columns_options_label.grid(row=1, column=0, sticky="s")
+        self.columns_options.grid(row=2, column=0, sticky="n")
+        
+        # Seccion Txt
         self.txt_controllers = tk.Frame(self.cruce_datos_generar_archivo_frame, bg="#212121")
         self.txt_controllers.grid(row=1, column=1, sticky="nsew")
+        open_excel_button.grid(row=0, column=0, sticky="n")
         
         self.txt_controllers.rowconfigure(0, weight=1)
         self.txt_controllers.rowconfigure(1, weight=1)
@@ -61,28 +80,22 @@ class ExcelAndTxtToTxtView():
         self.txt_start_position.grid(row=3, column=0, sticky="n")
         self.txt_end_position.grid(row=5, column=0, sticky="n")
         
-        self.columns_options_label =tk.Label(self.excel_controllers, text="Columnas: ", fg="white", bg="#212121", font=("Arial", 15))
-        self.columns_options = ttk.Combobox(self.excel_controllers, state="readonly")
-        self.columns_options.bind("<<ComboboxSelected>>", self.on_combobox_change)
-        self.columns_options_label.grid(row=1, column=0, sticky="s")
-        self.columns_options.grid(row=2, column=0, sticky="n")
-        
-        ### Contenido principal frame ExcelAndTxtToTxtView
-        # Botones de seleccion de archivos
-        open_excel_button = tk.Button(self.excel_controllers ,text="Seleccionar Excel", command=self.on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
         open_txt_button = tk.Button(self.txt_controllers, text="Seleccionar Txt", command=self.on_open_txt_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        open_excel_button.grid(row=0, column=0, sticky="n")
         open_txt_button.grid(row=0, column=0, sticky="n")
-        
-        # Titulo del frame
-        label = tk.Label(self.cruce_datos_generar_archivo_frame, text="Cruce de Datos Excel - Txt y Generación de Txt", wraplength=500, font=("Arial", 40), bg="#212121", fg="white")
-        label.grid(row=0, column=0, columnspan=2, sticky="nsew")
         
         # Botón para procesar archivos
         process_files_button = tk.Button(self.cruce_datos_generar_archivo_frame, text="Procesar archivos", command=self.on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
         process_files_button.grid(row=2, columnspan=2)
-    
-    
+        
+        # Seccion de resumen archivos
+        self.files_abstract = ctk.CTkTextbox(self.cruce_datos_generar_archivo_frame)
+        self.files_abstract.grid(row=3, columnspan=2, padx=20, pady=20 ,sticky="nsew")
+        self.files_abstract.insert("1.0", "Cargue los archivos para ver los detalles.")
+        
+        self.scrollbar = ctk.CTkScrollbar(self.cruce_datos_generar_archivo_frame, command=self.files_abstract.yview, bg_color="white")
+        self.scrollbar.grid(row=3, column=1, padx=25, pady=20, sticky="nse")
+        
+        self.files_abstract.configure(yscrollcommand=self.scrollbar.set)
     ### Utils
     def update_start_position_txt(self, value):
         print(value)
@@ -103,10 +116,20 @@ class ExcelAndTxtToTxtView():
         return re.match("^[0-9]+", self.columns_options.get())
     
     def on_open_excel_button_click(self):
-        self.columns_options["values"] = self.controller.open_excel()
+        excel_details = self.controller.open_excel()
+        self.columns_options["values"] = excel_details["columns_list"]
+        self.columns_options.set(self.columns_options["values"][0])
+        self.update_files_details_text(excel_details["files_abstract_text"])
         
     def on_open_txt_button_click(self):
-        self.controller.open_txt()
+        txt_details = self.controller.open_txt()
+        self.update_files_details_text(txt_details["files_abstract_text"])
+
     
     def on_process_files_button_click(self):
         self.controller.process_files()
+        
+    def update_files_details_text(self, msg):
+        if self.files_abstract.get("1.0", "end").strip() == "Cargue los archivos para ver los detalles.":
+            self.files_abstract.delete("1.0", "end")
+        self.files_abstract.insert("end", f"{msg}")
