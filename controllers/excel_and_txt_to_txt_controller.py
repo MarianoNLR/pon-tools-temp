@@ -44,7 +44,7 @@ Total de registros: {len(self.excel_df)}\n\n""",
             self.txt_data = [line.replace("\r\n", "\n") for line in self.txt_data]
         return {"files_abstract_text": f"""Detalles del Txt Seleccionado:\r
 Nombre: {os.path.basename(self.txt_file)}\r
-Tamaño: {os.path.getsize(self.txt_file) / (1024 * 1024):.2f}\r
+Tamaño: {os.path.getsize(self.txt_file) / (1024 * 1024):.2f} MB\r
 Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(self.txt_file)).strftime("%Y-%m-%D")}\r
 Total de lineas: {len(self.txt_data)}\n\n"""}
             
