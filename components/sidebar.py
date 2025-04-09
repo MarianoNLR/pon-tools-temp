@@ -10,7 +10,7 @@ class Sidebar():
         self.sidebar.grid(row=0, column=0, sticky="nsew")
         
         ### Barra lateral izquierda opciones
-        self.sidebar_opt1 = tk.Button(self.sidebar, text="Opcion 1", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.on_click_option1)
+        self.sidebar_opt1 = tk.Button(self.sidebar, text="Excel - Txt a Txt", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.on_click_option1)
         self.sidebar_opt2 = tk.Button(self.sidebar, text="Opcion 2", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.show_option2_frame)
         self.sidebar_opt3 = tk.Button(self.sidebar, text="Opcion 3", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.show_option3_frame)
         self.sidebar_opt4 = tk.Button(self.sidebar, text="Opcion 4", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.show_option4_frame)
