@@ -91,6 +91,7 @@ class ExcelAndTxtToTxtView():
         self.files_abstract = ctk.CTkTextbox(self.cruce_datos_generar_archivo_frame)
         self.files_abstract.grid(row=3, columnspan=2, padx=20, pady=20 ,sticky="nsew")
         self.files_abstract.insert("1.0", "Cargue los archivos para ver los detalles.")
+        self.files_abstract.configure(state="disabled")
         
         self.scrollbar = ctk.CTkScrollbar(self.cruce_datos_generar_archivo_frame, command=self.files_abstract.yview, bg_color="white")
         self.scrollbar.grid(row=3, column=1, padx=25, pady=20, sticky="nse")
@@ -130,6 +131,8 @@ class ExcelAndTxtToTxtView():
         self.controller.process_files()
         
     def update_files_details_text(self, msg):
+        self.files_abstract.configure(state="normal")
         if self.files_abstract.get("1.0", "end").strip() == "Cargue los archivos para ver los detalles.":
             self.files_abstract.delete("1.0", "end")
         self.files_abstract.insert("end", f"{msg}")
+        self.files_abstract.configure(state="disabled")
