@@ -8,6 +8,8 @@ class ExcelAndTxtToTxtController():
     
     def __init__(self, view):
         self.view = view
+        self.coincidences = []
+        self.process_result_info = {}
         pass
         
     def open_excel(self):
@@ -50,42 +52,48 @@ Total de lineas: {len(self.txt_data)}\n\n"""}
             
 
     def process_files(self):
+            txt_data_between_entry_index = []
             # Obtener las coincidencias entre excel y txt por DNI
             # Verificar si en la columna de excel son numeros
-            result_match_excel = self.excel_df[self.view.columns_options.get()].astype(str).str.match("^[0-9]+$")
-            if (self.excel_df[~result_match_excel].shape[0] >= 1):
-                messagebox.showwarning("Alerta", f"""En el archivo excel existen {self.excel_df[~result_match_excel].shape[0]} filas que en la columna {self.view.columns_options.get()} no contienen solo números!""")
-            
+            self.process_result_info["excel_wrong_data_rows"] = []
+            self.process_result_info["txt_wrong_data_rows"] = []
+            self.process_result_info["coincidences"] = []
+            for i, row in self.excel_df.iterrows():
+                if not re.match("^[0-9]+$", row[self.view.columns_options.get()]):
+                    self.process_result_info["excel_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor no es numérico.", "row": i+1})
+   
             # Controlar las lineas en txt
             # Posibilidad de mejora: controlar al cargar el archivo en memoria para 
             # no volver a recorrerlo
             # el problema es que al cargar no tengo las posiciones aún
             for i, line in enumerate(self.txt_data, start=0):
                 if not re.match("^[0-9]+$", line[int(self.view.txt_start_position.get())-1:int(self.view.txt_end_position.get())]):
-                    self.view.txt_errors.append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({self.view.txt_start_position.get()}, {self.view.txt_end_position.get()}) no es numérico.", "row": i+1})
+                    self.process_result_info["txt_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({self.view.txt_start_position.get()}, {self.view.txt_end_position.get()}) no es numérico.", "row": i+1})
             
-            print(self.view.txt_errors)
-            self.write_txt()
+            # Recorrer txt y cada linea comparar con los dni del excel
+            for row in self.txt_data:
+                        if (row[int(self.view.txt_start_position.get())-1:int(self.view.txt_end_position.get())] 
+                            in self.excel_df[self.view.columns_options.get()].astype(str).tolist()): 
+                            
+                            self.coincidences.append(row)
+            
+            # Seteo de objeto de errores para enviar a la vista
+            self.process_result_info["coincidences"] = len(self.coincidences)
+            return self.process_result_info
             
     def write_txt(self):
-            # Agregar coincidencias al nuevo txt
-            txt_data_between_entry_index = []
-            for i in self.txt_data:
-                txt_data_between_entry_index.append(i[int(self.view.txt_start_position.get())-1:int(self.view.txt_end_position.get())])
-                
+            # Agregar coincidencias al nuevo txt              
             save_path = filedialog.asksaveasfilename(
                 defaultextension=".txt",
                 filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
                 title="Guardar archivo"
             )
             
-            coincidences = self.excel_df[self.view.columns_options.get()].astype("str").isin(txt_data_between_entry_index)
             if save_path:
                 with open(save_path, 'w', encoding="utf-8", errors="ignore", newline="\n") as file:
-                    print(self.excel_df[coincidences][self.view.columns_options.get()].to_list())
-                    for row in self.txt_data:
-                        if row[int(self.view.txt_start_position.get())-1:int(self.view.txt_end_position.get())] in self.excel_df[coincidences][self.view.columns_options.get()].tolist(): 
-                            file.write(f"{row}")
+                    #print(self.excel_df[self.coincidences][self.view.columns_options.get()].to_list())
+                    for row in self.coincidences:
+                        file.write(f"{row}")
             
             if save_path:
                 os.startfile(save_path)

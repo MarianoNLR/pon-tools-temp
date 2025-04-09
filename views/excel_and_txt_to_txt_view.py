@@ -14,9 +14,10 @@ class ExcelAndTxtToTxtView():
             frame.destroy()
         
         self.controller = ExcelAndTxtToTxtController(self)
+        self.excel_details = None
+        self.txt_details = None
         # Variables para control de errores
-        self.txt_errors = []
-        self.excel_errors = []
+        self.process_result_details = {}
         
         # Creacion de frames
         self.cruce_datos_generar_archivo_frame = tk.Frame(main_frame, bg="#212121", height=300)
@@ -31,6 +32,7 @@ class ExcelAndTxtToTxtView():
         self.cruce_datos_generar_archivo_frame.grid_rowconfigure(1, weight=1, minsize=300)
         self.cruce_datos_generar_archivo_frame.grid_rowconfigure(2, weight=3)
         self.cruce_datos_generar_archivo_frame.grid_rowconfigure(3, weight=3, minsize=300)
+        self.cruce_datos_generar_archivo_frame.grid_rowconfigure(4, weight=1, minsize=100)
         self.cruce_datos_generar_archivo_frame.grid_columnconfigure(0, weight=1)
         self.cruce_datos_generar_archivo_frame.grid_columnconfigure(1, weight=1)
         
@@ -97,6 +99,11 @@ class ExcelAndTxtToTxtView():
         self.scrollbar.grid(row=3, column=1, padx=25, pady=20, sticky="nse")
         
         self.files_abstract.configure(yscrollcommand=self.scrollbar.set)
+        
+        # Boton para guardar resultado
+        self.save_result_button = tk.Button(self.cruce_datos_generar_archivo_frame, text="Guardar resultado", command=self.on_save_result_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
+        self.save_result_button.grid(row=4, columnspan=2)
+        
     ### Utils
     def update_start_position_txt(self, value):
         print(value)
@@ -117,18 +124,24 @@ class ExcelAndTxtToTxtView():
         return re.match("^[0-9]+", self.columns_options.get())
     
     def on_open_excel_button_click(self):
-        excel_details = self.controller.open_excel()
-        self.columns_options["values"] = excel_details["columns_list"]
+        self.excel_details = self.controller.open_excel()
+        self.columns_options["values"] = self.excel_details["columns_list"]
         self.columns_options.set(self.columns_options["values"][0])
-        self.update_files_details_text(excel_details["files_abstract_text"])
+        self.update_files_details_text(self.excel_details["files_abstract_text"])
         
     def on_open_txt_button_click(self):
-        txt_details = self.controller.open_txt()
-        self.update_files_details_text(txt_details["files_abstract_text"])
-
-    
+        self.txt_details = self.controller.open_txt()
+        self.update_files_details_text(self.txt_details["files_abstract_text"])
+        
     def on_process_files_button_click(self):
-        self.controller.process_files()
+        if not self.txt_details and not self.excel_details:
+            return
+        self.process_result_details = self.controller.process_files()
+        self.files_abstract.configure(state="normal")
+        self.files_abstract.insert("end", f"Coincidencias encontradas: {self.process_result_details["coincidences"]}\r\n")
+        self.files_abstract.insert("end", f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}\r\n")
+        self.files_abstract.insert("end", f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}\r\n")
+        self.files_abstract.configure(state="disabled")
         
     def update_files_details_text(self, msg):
         self.files_abstract.configure(state="normal")
@@ -136,3 +149,6 @@ class ExcelAndTxtToTxtView():
             self.files_abstract.delete("1.0", "end")
         self.files_abstract.insert("end", f"{msg}")
         self.files_abstract.configure(state="disabled")
+        
+    def on_save_result_button_click(self):
+       self.controller.write_txt()
