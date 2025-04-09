@@ -11,8 +11,8 @@ class MainApp:
         ### Config ventana principal
         self.root = tk.Tk(screenName="PON Tools")
         self.root.title("PON Tools")
-        self.root.geometry("900x600")
-        self.root.minsize(width=800, height=600)
+        self.root.geometry("900x900")
+        self.root.minsize(width=800, height=900)
         
         # Configuracion grid ventana principal
         self.root.grid_columnconfigure(0, weight=1, uniform="equal")
