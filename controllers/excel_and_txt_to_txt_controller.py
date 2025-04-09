@@ -1,3 +1,4 @@
+from datetime import datetime
 from tkinter import filedialog, messagebox
 import pandas as pd
 import re
@@ -21,22 +22,32 @@ class ExcelAndTxtToTxtController():
             ### Cargo las columnas como String por el momento porque sino
             ### algunos datos se guardan con notación cientifica en el nuevo excel ###
             self.excel_df = pd.read_excel(self.excel_file).astype(str)
-            
             #Cargar combobox con columnas del excel seleccionado
-            return self.excel_df.columns.tolist()
+            return {"files_abstract_text": f"""Detalles del Excel Seleccionado:\r
+Nombre: {os.path.basename(self.excel_file)}\r
+Tamaño: {os.path.getsize(self.excel_file) / (1024 * 1024):.2f} MB\r
+Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(self.excel_file)).strftime("%Y-%m-%D")}\r
+Total de registros: {len(self.excel_df)}\n\n""", 
+                    "columns_list": self.excel_df.columns.tolist()}
             
             
     def open_txt(self):
-            self.txt_file = filedialog.askopenfilename(title="Selecciona una archivo")
-            if self.txt_file:
-                print(f"Archivo: {self.txt_file}")
-            else:
-                print("No se seleccionó ningun archivo.")
-            # Leer txt y cargar en data frame
-            with open(self.txt_file, "r", encoding="cp1252", newline="") as txt:
-                self.txt_data = []
-                self.txt_data = txt.readlines()
-                self.txt_data = [line.replace("\r\n", "\n") for line in self.txt_data]
+        self.txt_file = filedialog.askopenfilename(title="Selecciona una archivo")
+        if self.txt_file:
+            print(f"Archivo: {self.txt_file}")
+        else:
+            print("No se seleccionó ningun archivo.")
+        # Leer txt y cargar en data frame
+        with open(self.txt_file, "r", encoding="cp1252", newline="") as txt:
+            self.txt_data = []
+            self.txt_data = txt.readlines()
+            self.txt_data = [line.replace("\r\n", "\n") for line in self.txt_data]
+        return {"files_abstract_text": f"""Detalles del Txt Seleccionado:\r
+Nombre: {os.path.basename(self.txt_file)}\r
+Tamaño: {os.path.getsize(self.txt_file) / (1024 * 1024):.2f}\r
+Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(self.txt_file)).strftime("%Y-%m-%D")}\r
+Total de lineas: {len(self.txt_data)}\n\n"""}
+            
 
     def process_files(self):
             # Obtener las coincidencias entre excel y txt por DNI
