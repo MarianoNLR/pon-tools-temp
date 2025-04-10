@@ -151,6 +151,9 @@ class ExcelAndTxtToTxtView():
         if not self.txt_end_position.get():
             messagebox.showwarning(title="Error posicion de fin txt", message="Debes indicar la posicion de fin para el Documento de texto.")
             return
+        if self.txt_start_position.get() > self.txt_end_position.get():
+            messagebox.showwarning(title="Error posiciones ingresadas para txt", message="La posición de inicio no puede ser mayor a la posicion de fin para analizar el documento de texto.")
+            return
         
         self.process_result_details = self.controller.process_files()
         self.files_abstract.configure(state="normal")
