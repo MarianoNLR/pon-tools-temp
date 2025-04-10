@@ -4,6 +4,7 @@ from controllers.excel_and_txt_to_txt_controller import ExcelAndTxtToTxtControll
 import tkintertools as tkt
 import customtkinter as ctk
 import re
+from tkinter import messagebox
 
 
 class ExcelAndTxtToTxtView():
@@ -124,6 +125,7 @@ class ExcelAndTxtToTxtView():
         return re.match("^[0-9]+", self.columns_options.get())
     
     def on_open_excel_button_click(self):
+        print(self.columns_options.get())
         self.excel_details = self.controller.open_excel()
         self.columns_options["values"] = self.excel_details["columns_list"]
         self.columns_options.set(self.columns_options["values"][0])
@@ -134,8 +136,22 @@ class ExcelAndTxtToTxtView():
         self.update_files_details_text(self.txt_details["files_abstract_text"])
         
     def on_process_files_button_click(self):
-        if not self.txt_details and not self.excel_details:
+        if not self.excel_details:
+            messagebox.showwarning(title="Archivo no seleccionado.", message="No has seleccionado una Planilla Excel.")
             return
+        if not self.txt_details:
+            messagebox.showwarning(title="Archivo no seleccionado", message="No has seleccionado un Documento de Texto.")
+            return
+        if self.columns_options.get() == "Selecciona una columna":
+            messagebox.showwarning(title="Columna no seleccionada.", message="Debes seleccionar una columna del Excel para analizar.")
+            return
+        if not self.txt_start_position.get():
+            messagebox.showwarning(title="Error posicion de inicio txt", message="Debes indicar la posicion de inicio para el Documento de texto.")
+            return
+        if not self.txt_end_position.get():
+            messagebox.showwarning(title="Error posicion de fin txt", message="Debes indicar la posicion de fin para el Documento de texto.")
+            return
+        
         self.process_result_details = self.controller.process_files()
         self.files_abstract.configure(state="normal")
         self.files_abstract.insert("end", f"Coincidencias encontradas: {self.process_result_details["coincidences"]}\r\n")
