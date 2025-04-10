@@ -21,24 +21,23 @@ class ExcelAndTxtToTxtView():
         self.process_result_details = {}
         
         # Creacion de frames
-        self.cruce_datos_generar_archivo_frame = tk.Frame(main_frame, bg="#212121", height=300)
-        self.cruce_datos_generar_archivo_frame.grid(row=0, column=0, sticky="nsew")
+        self.excel_and_txt_to_txt_frame = tk.Frame(main_frame, bg="#212121", height=300)
+        self.excel_and_txt_to_txt_frame.grid(row=0, column=0, sticky="nsew")
         
         # Titulo del frame
-        label = tk.Label(self.cruce_datos_generar_archivo_frame, text="Cruce de Datos Excel - Txt y Generación de Txt", wraplength=500, font=("Arial", 40), bg="#212121", fg="white")
+        label = tk.Label(self.excel_and_txt_to_txt_frame, text="Cruce de Datos Excel - Txt y Generación de Txt", wraplength=500, font=("Arial", 40), bg="#212121", fg="white")
         label.grid(row=0, column=0, columnspan=2, sticky="nsew")
-        
         #### Configuracion de grid ExcelAndTxtToTxtView
-        self.cruce_datos_generar_archivo_frame.grid_rowconfigure(0, weight=1)
-        self.cruce_datos_generar_archivo_frame.grid_rowconfigure(1, weight=1, minsize=300)
-        self.cruce_datos_generar_archivo_frame.grid_rowconfigure(2, weight=3)
-        self.cruce_datos_generar_archivo_frame.grid_rowconfigure(3, weight=3, minsize=300)
-        self.cruce_datos_generar_archivo_frame.grid_rowconfigure(4, weight=1, minsize=100)
-        self.cruce_datos_generar_archivo_frame.grid_columnconfigure(0, weight=1)
-        self.cruce_datos_generar_archivo_frame.grid_columnconfigure(1, weight=1)
+        self.excel_and_txt_to_txt_frame.grid_rowconfigure(0, weight=1)
+        self.excel_and_txt_to_txt_frame.grid_rowconfigure(1, weight=1, minsize=300)
+        self.excel_and_txt_to_txt_frame.grid_rowconfigure(2, weight=3)
+        self.excel_and_txt_to_txt_frame.grid_rowconfigure(3, weight=3, minsize=300)
+        self.excel_and_txt_to_txt_frame.grid_rowconfigure(4, weight=1, minsize=100)
+        self.excel_and_txt_to_txt_frame.grid_columnconfigure(0, weight=1)
+        self.excel_and_txt_to_txt_frame.grid_columnconfigure(1, weight=1)
         
         # Seccion Excel
-        self.excel_controllers = tk.Frame(self.cruce_datos_generar_archivo_frame, bg="#212121")
+        self.excel_controllers = tk.Frame(self.excel_and_txt_to_txt_frame, bg="#212121")
         self.excel_controllers.grid(row=1, column=0, sticky="nsew")
         
         self.excel_controllers.rowconfigure(0, weight=1)
@@ -58,7 +57,7 @@ class ExcelAndTxtToTxtView():
         self.columns_options.grid(row=2, column=0, sticky="n")
         
         # Seccion Txt
-        self.txt_controllers = tk.Frame(self.cruce_datos_generar_archivo_frame, bg="#212121")
+        self.txt_controllers = tk.Frame(self.excel_and_txt_to_txt_frame, bg="#212121")
         self.txt_controllers.grid(row=1, column=1, sticky="nsew")
         open_excel_button.grid(row=0, column=0, sticky="n")
         
@@ -70,9 +69,9 @@ class ExcelAndTxtToTxtView():
         self.txt_controllers.rowconfigure(5, weight=1)
         self.txt_controllers.columnconfigure(0, weight=1)
         
-        self.validate_position_txt = self.cruce_datos_generar_archivo_frame.register(self.validate_position_txt)
-        # self.update_start_position_txt = self.cruce_datos_generar_archivo_frame.register(self.update_start_position_txt)
-        # self.update_end_position_txt = self.cruce_datos_generar_archivo_frame.register(self.update_end_position_txt)
+        self.validate_position_txt = self.excel_and_txt_to_txt_frame.register(self.validate_position_txt)
+        # self.update_start_position_txt = self.excel_and_txt_to_txt_frame.register(self.update_start_position_txt)
+        # self.update_end_position_txt = self.excel_and_txt_to_txt_frame.register(self.update_end_position_txt)
         self.txt_start_position = tk.Entry(self.txt_controllers, validate="key", validatecommand=(self.validate_position_txt, '%P'))
         self.txt_end_position = tk.Entry(self.txt_controllers,  validate="key", validatecommand=(self.validate_position_txt, '%P'))
 
@@ -87,22 +86,22 @@ class ExcelAndTxtToTxtView():
         open_txt_button.grid(row=0, column=0, sticky="n")
         
         # Botón para procesar archivos
-        process_files_button = tk.Button(self.cruce_datos_generar_archivo_frame, text="Procesar archivos", command=self.on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
+        process_files_button = tk.Button(self.excel_and_txt_to_txt_frame, text="Procesar archivos", command=self.on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
         process_files_button.grid(row=2, columnspan=2)
         
         # Seccion de resumen archivos
-        self.files_abstract = ctk.CTkTextbox(self.cruce_datos_generar_archivo_frame)
+        self.files_abstract = ctk.CTkTextbox(self.excel_and_txt_to_txt_frame)
         self.files_abstract.grid(row=3, columnspan=2, padx=20, pady=20 ,sticky="nsew")
         self.files_abstract.insert("1.0", "Cargue los archivos para ver los detalles.")
         self.files_abstract.configure(state="disabled")
         
-        self.scrollbar = ctk.CTkScrollbar(self.cruce_datos_generar_archivo_frame, command=self.files_abstract.yview, bg_color="white")
+        self.scrollbar = ctk.CTkScrollbar(self.excel_and_txt_to_txt_frame, command=self.files_abstract.yview, bg_color="white")
         self.scrollbar.grid(row=3, column=1, padx=25, pady=20, sticky="nse")
         
         self.files_abstract.configure(yscrollcommand=self.scrollbar.set)
         
         # Boton para guardar resultado
-        self.save_result_button = tk.Button(self.cruce_datos_generar_archivo_frame, text="Guardar resultado", command=self.on_save_result_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
+        self.save_result_button = tk.Button(self.excel_and_txt_to_txt_frame, text="Guardar resultado", command=self.on_save_result_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
         self.save_result_button.grid(row=4, columnspan=2)
         
     ### Utils
