@@ -1,117 +1,126 @@
 import tkinter as tk
 from views.excel_and_txt_to_txt_view import ExcelAndTxtToTxtView
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QFrame
+from PySide6.QtCore import Qt
 
-class Sidebar():
+class Sidebar(QWidget):
     def __init__(self, root, main_content):
+        super().__init__(root)
+        
         self.root = root
         self.main_content = main_content
-    ### Barra lateral izquierda
-        self.sidebar = tk.Frame(self.root, bg="#eb2b2b")
-        self.sidebar.grid(row=0, column=0, sticky="nsew")
+        # Barra lateral izquierda
+        self.setMaximumWidth(350)
         
-        ### Barra lateral izquierda opciones
-        self.sidebar_opt1 = tk.Button(self.sidebar, text="Excel - Txt a Txt", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.on_click_option1)
-        self.sidebar_opt2 = tk.Button(self.sidebar, text="Opcion 2", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.show_option2_frame)
-        self.sidebar_opt3 = tk.Button(self.sidebar, text="Opcion 3", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.show_option3_frame)
-        self.sidebar_opt4 = tk.Button(self.sidebar, text="Opcion 4", relief="flat", height=2, foreground="white", bg="#eb2b2b", font=("Arial", 12), command=self.show_option4_frame)
+        # Layout para los botones de la barra lateral
+        sidebar_layout = QVBoxLayout()
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setObjectName("sidebar")
+
+        self.setAutoFillBackground(True)
+        # palette = self.palette()  
+        # palette.setColor(self.backgroundRole(), QColor("#eb2b2b"))
+        # self.setPalette(palette)
+        sidebar_layout.setAlignment(Qt.AlignTop)
+        sidebar_layout.setContentsMargins(0, 0, 0, 0)
+                
+        # Crear los botones de la barra lateral
+        self.sidebar_opt1 = QPushButton("Excel - Txt a Txt", self)
+        self.sidebar_opt1.setStyleSheet("color: white; font-size: 20px;")
+        self.sidebar_opt1.clicked.connect(self.on_click_option1)
+        self.sidebar_opt1.setProperty("sidebar_option_button", True)
         
-        self.sidebar_opt1.pack(fill="x", pady=0)
-        self.sidebar_opt2.pack(fill="x", pady=1)
-        self.sidebar_opt3.pack(fill="x", pady=1)
-        self.sidebar_opt4.pack(fill="x", pady=1)
+        self.sidebar_opt2 = QPushButton("Opcion 2", self)
+        self.sidebar_opt2.setProperty("sidebar_option_button", True)
+        self.sidebar_opt2.setStyleSheet("color: white; font-size: 20px;")
+        self.sidebar_opt2.clicked.connect(self.show_option2_frame)
+
+        self.sidebar_opt3 = QPushButton("Opcion 3", self)
+        self.sidebar_opt3.setProperty("sidebar_option_button", True)
+        self.sidebar_opt3.setStyleSheet("color: white; font-size: 20px;")
+        self.sidebar_opt3.clicked.connect(self.show_option3_frame)
+
+        self.sidebar_opt4 = QPushButton("Opcion 4", self)
+        self.sidebar_opt4.setProperty("sidebar_option_button", True)
+        self.sidebar_opt4.setStyleSheet("color: white; font-size: 20px;")
+        self.sidebar_opt4.clicked.connect(self.show_option4_frame)
+        
+        
+        buttons = self.findChildren(QPushButton)
+        
+        # Aplicar el cursor de puntero a todos los botones
+        for button in buttons:
+            button.setCursor(Qt.PointingHandCursor)
+        
+        # Añadir los botones al layout
+        sidebar_layout.addWidget(self.sidebar_opt1)
+        sidebar_layout.addWidget(self.sidebar_opt2)
+        sidebar_layout.addWidget(self.sidebar_opt3)
+        sidebar_layout.addWidget(self.sidebar_opt4)
+        
+        self.setLayout(sidebar_layout)
+        self.setStyleSheet("""
+            #sidebar {
+                background-image: url("D:/Projects/PON-Tools - pyside/components/prism_red.png");     
+                background-color: #de4c47;
+            }
+            
+            QPushButton[sidebar_option_button="true"] {
+                background-color: transparent;
+                padding: 10px;
+            }
+            
+            QPushButton[sidebar_option_button="true"]:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        """)
         
     def on_click_option1(self):
+        self.clear_main_content()
         ExcelAndTxtToTxtView(self.main_content)
         
     ### Mostrar Frame de Opcion 2
     def show_option2_frame(self):
-        for frame in self.main_content.winfo_children():
-            frame.destroy()
-        
-        # Creacion de frames
-        opcion2_frame =tk.Frame(self.main_content, bg="#212121", height=300)
-        opcion2_frame.grid(row=0, column=0, sticky="nsew")
-        
-        # Configuracion de grid opcion 2
-        opcion2_frame.grid_rowconfigure(0, weight=1)
-        opcion2_frame.grid_rowconfigure(1, weight=1)
-        opcion2_frame.grid_rowconfigure(2, weight=3)
-        opcion2_frame.grid_columnconfigure(0, weight=1)
-        opcion2_frame.grid_columnconfigure(1, weight=1)
-        
-        ### Contenido principal frame opcion 2
-        # # Botones de seleccion de archivos
-        # open_excel_button = tk.Button(opcion1_frame ,text="Seleccionar Excel", command=on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        # open_txt_button = tk.Button(opcion1_frame, text="Seleccionar Txt", command=on_open_txt_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        # open_excel_button.grid(row=1, column=0)
-        # open_txt_button.grid(row=1, column=1)
-        
-        # Titulo del frame
-        label = tk.Label(opcion2_frame, text="Bienvenido a la Opcion 2", wraplength=350, font=("Arial", 40), bg="#212121", fg="white")
-        label.grid(row=0, column=0, columnspan=2, sticky="nsew")
-        
-        # Botón para procesar archivos
-        # process_files_button = tk.Button(opcion1_frame, text="Procesar archivos", command=on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
-        # process_files_button.grid(row=2, columnspan=2)
+        self.clear_main_content()  # Limpiar contenido anterior
+
+        opcion2_frame = QFrame(self.main_content)
+        opcion2_frame.setStyleSheet("background-color: #212121; height: 300px;")
+        self.main_content.layout().addWidget(opcion2_frame)
+
+        label = QLabel("Bienvenido a la Opcion 2", opcion2_frame)
+        label.setStyleSheet("color: white; font-size: 40px;")
+        label.setAlignment(Qt.AlignCenter)
+        opcion2_frame.layout().addWidget(label)
         
     ### Mostrar Frame de Opcion 3
     def show_option3_frame(self):
-        for frame in self.main_content.winfo_children():
-            frame.destroy()
-        
-        # Creacion de frames
-        opcion3_frame =tk.Frame(self.main_content, bg="#212121", height=300)
-        opcion3_frame.grid(row=0, column=0, sticky="nsew")
-        
-        # Configuracion de grid opcion 3
-        opcion3_frame.grid_rowconfigure(0, weight=1)
-        opcion3_frame.grid_rowconfigure(1, weight=1)
-        opcion3_frame.grid_rowconfigure(2, weight=3)
-        opcion3_frame.grid_columnconfigure(0, weight=1)
-        opcion3_frame.grid_columnconfigure(1, weight=1)
-        
-        ### Contenido principal frame opcion 3
-        # # Botones de seleccion de archivos
-        # open_excel_button = tk.Button(opcion1_frame ,text="Seleccionar Excel", command=on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        # open_txt_button = tk.Button(opcion1_frame, text="Seleccionar Txt", command=on_open_txt_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        # open_excel_button.grid(row=1, column=0)
-        # open_txt_button.grid(row=1, column=1)
-        
-        # Titulo del frame
-        label = tk.Label(opcion3_frame, text="Bienvenido a la Opcion 3", wraplength=350, font=("Arial", 40), bg="#212121", fg="white")
-        label.grid(row=0, column=0, columnspan=2, sticky="nsew")
-        
-        # # Botón para procesar archivos
-        # process_files_button = tk.Button(opcion1_frame, text="Procesar archivos", command=on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
-        # process_files_button.grid(row=2, columnspan=2)
+        self.clear_main_content()  # Limpiar contenido anterior
+
+        opcion3_frame = QFrame(self.main_content)
+        opcion3_frame.setStyleSheet("background-color: #212121; height: 300px;")
+        self.main_content.layout().addWidget(opcion3_frame)
+
+        label = QLabel("Bienvenido a la Opcion 3", opcion3_frame)
+        label.setStyleSheet("color: white; font-size: 40px;")
+        label.setAlignment(Qt.AlignCenter)
+        opcion3_frame.layout().addWidget(label)
         
     ### Mostrar Frame de Opcion 4
     def show_option4_frame(self):
-        for frame in self.main_content.winfo_children():
-            frame.destroy()
+        self.clear_main_content()  # Limpiar contenido anterior
+
+        opcion4_frame = QFrame(self.main_content)
+        opcion4_frame.setStyleSheet("background-color: #212121; height: 300px;")
+        self.main_content.layout().addWidget(opcion4_frame)
+
+        label = QLabel("Bienvenido a la Opcion 4", opcion4_frame)
+        label.setStyleSheet("color: white; font-size: 40px;")
+        label.setAlignment(Qt.AlignCenter)
+        opcion4_frame.layout().addWidget(label)
         
-        # Creacion de frames
-        opcion4_frame =tk.Frame(self.main_content, bg="#212121", height=300)
-        opcion4_frame.grid(row=0, column=0, sticky="nsew")
-        
-        # Configuracion de grid opcion 4
-        opcion4_frame.grid_rowconfigure(0, weight=1)
-        opcion4_frame.grid_rowconfigure(1, weight=1)
-        opcion4_frame.grid_rowconfigure(2, weight=3)
-        opcion4_frame.grid_columnconfigure(0, weight=1)
-        opcion4_frame.grid_columnconfigure(1, weight=1)
-        
-        ### Contenido principal frame opcion 4
-        # # Botones de seleccion de archivos
-        # open_excel_button = tk.Button(opcion1_frame ,text="Seleccionar Excel", command=on_open_excel_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        # open_txt_button = tk.Button(opcion1_frame, text="Seleccionar Txt", command=on_open_txt_button_click, relief="flat", bg="#eb2b2b", fg="white", height=3, font=("Arial", 12))
-        # open_excel_button.grid(row=1, column=0)
-        # open_txt_button.grid(row=1, column=1)
-        
-        # Titulo del frame
-        label = tk.Label(opcion4_frame, text="Bienvenido a la Opcion 4", wraplength=350, font=("Arial", 40), bg="#212121", fg="white")
-        label.grid(row=0, column=0, columnspan=2, sticky="nsew")
-        
-        # # Botón para procesar archivos
-        # process_files_button = tk.Button(opcion1_frame, text="Procesar archivos", command=on_process_files_button_click, relief="flat", bg="#ffffff", fg="#000000", height=3, font=("Arial", 12))
-        # process_files_button.grid(row=2, columnspan=2)
+    def clear_main_content(self):
+        # Limpiar el contenido previo del área principal
+        for i in reversed(range(self.main_content.layout().count())):
+            widget_to_remove = self.main_content.layout().itemAt(i).widget()
+            if widget_to_remove is not None:
+                widget_to_remove.setParent(None)
