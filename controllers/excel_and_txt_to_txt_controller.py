@@ -23,7 +23,9 @@ class ExcelAndTxtToTxtController():
         if excel_file:
             # Leer excel y cargar en data frame
             self.excel_df = pd.read_excel(excel_file).astype(str)
-                
+            
+            # Limpio el combobox de columnas cuando se selecciona un nuevo archivo
+            self.view.columns_select.clear()
             ### Cargo las columnas como String por el momento porque sino
             ### algunos datos se guardan con notación cientifica en el nuevo excel ###
             #Cargar combobox con columnas del excel seleccionado
