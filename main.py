@@ -7,6 +7,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QFrame, QHBoxLayout
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
+from resource_path import resource_path
 
 class MainApp(QMainWindow):
     
@@ -25,14 +26,15 @@ class MainApp(QMainWindow):
         self.main_layout = QHBoxLayout(central_widget)
 
         # Contenedor principal de contenido
+        bg_img_path = resource_path("assets/prism.png")
         self.main_content = QWidget(self)
         self.main_content.setObjectName("main_content")
         self.main_content.setStyleSheet("background-color: #212121; color: white;")
         self.main_content.setMinimumHeight(300)
-        self.main_content.setStyleSheet("""
-            #main_content {
-                background-image: url("prism.png");
-            }
+        self.main_content.setStyleSheet(f"""
+            #main_content {{
+                background-image: url("{bg_img_path.replace("\\", "/")}");
+            }}
         """)
         
         # Crear la barra lateral
