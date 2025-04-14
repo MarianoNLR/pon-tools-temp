@@ -44,7 +44,6 @@ class MainApp:
         welcome_frame.grid_rowconfigure(0, weight=1)
         
         welcome_frame.grid_columnconfigure(0, weight=1)
-        welcome_frame.grid_columnconfigure(1, weight=1)
         
         label = tk.Label(welcome_frame, text="Bienvenido a PON Tools", font=("Arial", 40), wraplength=400, bg="#212121", fg="white")
         label.grid(row=0, column=0, sticky="nsew")
