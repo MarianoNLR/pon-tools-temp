@@ -3,7 +3,7 @@ from tkinter import filedialog, messagebox
 import pandas as pd
 import re
 import os
-from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QFileDialog, QMessageBox
 
 class ExcelAndTxtToTxtController():
     
@@ -17,10 +17,14 @@ class ExcelAndTxtToTxtController():
         self.view,
         "Seleccionar archivo Excel",
         "",
-        "Archivos de Excel (*.xlsx *.xls);;Todos los archivos (*)"
+        "Archivos de Excel (*.xlsx *.xls)"
         )
         
         if excel_file:
+            extension = os.path.splitext(excel_file)[1].lower()
+            if extension not in [".xlsx", ".xls"]:
+                QMessageBox.warning(self.view, "Archivo inválido", "Debe seleccionar una rchivo Excel (.xlsx o .xls)")
+                return None
             # Leer excel y cargar en data frame
             self.excel_df = pd.read_excel(excel_file).astype(str)
             
@@ -42,9 +46,13 @@ Total de registros: {len(self.excel_df)}</p>""",
             self.view,
             "Seleccionar Archivo de Texto",
             "",
-            "Archivo de Texto (*.txt);;Todos los archivos (*)"
+            "Archivo de Texto (*.txt)"
         )
         if txt_file:
+            extension = os.path.splitext(txt_file)[1].lower()
+            if extension not in [".txt"]:
+                QMessageBox.warning(self.view, "Archivo inválido", "Debe seleccionar una rchivo Excel (.xlsx o .xls)")
+                return None
             print(f"Archivo: {txt_file}")
             with open(txt_file, "r", encoding="cp1252", newline="") as txt:
                 self.txt_data = []

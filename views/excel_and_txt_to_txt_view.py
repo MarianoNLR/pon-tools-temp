@@ -191,6 +191,8 @@ class ExcelAndTxtToTxtView(QWidget):
     
     def on_open_excel_button_click(self):
         self.excel_details = self.controller.open_excel()
+        if self.excel_details == None:
+            return
         self.columns_select.addItems(self.excel_details['columns_list'])
         self.files_abstract_structure["excel_text"] = self.excel_details["files_abstract_text"]
         self.update_files_details_text()
@@ -198,6 +200,8 @@ class ExcelAndTxtToTxtView(QWidget):
         
     def on_open_txt_button_click(self):
         self.txt_details = self.controller.open_txt()
+        if self.txt_details == None:
+            return
         self.files_abstract_structure["txt_text"] = self.txt_details["files_abstract_text"]
         self.update_files_details_text()
         #self.update_files_details_text(self.txt_details["files_abstract_text"])
