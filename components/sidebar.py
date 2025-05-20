@@ -10,10 +10,11 @@ class Sidebar(QWidget):
         
         self.root = root
         self.main_content = main_content
-        # Barra lateral izquierda
+        # Left Sidebar
         self.setMaximumWidth(350)
         
-        # Layout para los botones de la barra lateral
+        
+        # Sidebar Buttons Layout
         sidebar_layout = QVBoxLayout()
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setObjectName("sidebar")
@@ -25,7 +26,7 @@ class Sidebar(QWidget):
         sidebar_layout.setAlignment(Qt.AlignTop)
         sidebar_layout.setContentsMargins(0, 0, 0, 0)
                 
-        # Crear los botones de la barra lateral
+        #region Creating Sidebar Buttons
         self.sidebar_opt1 = QPushButton("Excel - Txt a Txt", self)
         self.sidebar_opt1.setStyleSheet("color: white; font-size: 20px;")
         self.sidebar_opt1.clicked.connect(self.on_click_option1)
@@ -46,7 +47,6 @@ class Sidebar(QWidget):
         # self.sidebar_opt4.setStyleSheet("color: white; font-size: 20px;")
         # self.sidebar_opt4.clicked.connect(self.show_option4_frame)
         
-        
         buttons = self.findChildren(QPushButton)
         
         # Aplicar el cursor de puntero a todos los botones
@@ -58,9 +58,11 @@ class Sidebar(QWidget):
         # sidebar_layout.addWidget(self.sidebar_opt2)
         # sidebar_layout.addWidget(self.sidebar_opt3)
         # sidebar_layout.addWidget(self.sidebar_opt4)
-        
+        #endregion
         
         self.setLayout(sidebar_layout)
+        
+        # Sidebar Styles
         bg_img_path = resource_path("assets/prism_red.png")
         self.setStyleSheet(f"""
             #sidebar {{
@@ -122,7 +124,7 @@ class Sidebar(QWidget):
     #     opcion4_frame.layout().addWidget(label)
         
     def clear_main_content(self):
-        # Limpiar el contenido previo del área principal
+        # Clear previous content in main container
         for i in reversed(range(self.main_content.layout().count())):
             widget_to_remove = self.main_content.layout().itemAt(i).widget()
             if widget_to_remove is not None:

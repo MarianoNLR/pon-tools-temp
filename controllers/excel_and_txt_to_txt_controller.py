@@ -21,18 +21,19 @@ class ExcelAndTxtToTxtController():
         )
         
         if excel_file:
+             # Control extension to limit type of file
             extension = os.path.splitext(excel_file)[1].lower()
             if extension not in [".xlsx", ".xls"]:
                 QMessageBox.warning(self.view, "Archivo inválido", "Debe seleccionar una rchivo Excel (.xlsx o .xls)")
                 return None
-            # Leer excel y cargar en data frame
+            # Read excel and set dataframe
             self.excel_df = pd.read_excel(excel_file).astype(str)
             
-            # Limpio el combobox de columnas cuando se selecciona un nuevo archivo
+            # Clear Combobox of columns when selecting new file
             self.view.columns_select.clear()
-            ### Cargo las columnas como String por el momento porque sino
-            ### algunos datos se guardan con notación cientifica en el nuevo excel ###
-            #Cargar combobox con columnas del excel seleccionado
+            
+            ### Set columns as string because some data is saved using scientific notation
+            # Fill Combobox with columns obtained from selected excel
             return {"files_abstract_text": f"""<p>Detalles del Excel Seleccionado:<br>
 Nombre: {os.path.basename(excel_file)}<br>
 Tamaño: {os.path.getsize(excel_file) / (1024 * 1024):.2f} MB<br>
@@ -49,11 +50,14 @@ Total de registros: {len(self.excel_df)}</p>""",
             "Archivo de Texto (*.txt)"
         )
         if txt_file:
+            # Control extension to limit type of file
             extension = os.path.splitext(txt_file)[1].lower()
             if extension not in [".txt"]:
                 QMessageBox.warning(self.view, "Archivo inválido", "Debe seleccionar una rchivo Excel (.xlsx o .xls)")
                 return None
             print(f"Archivo: {txt_file}")
+            
+            # Read file  
             with open(txt_file, "r", encoding="cp1252", newline="") as txt:
                 self.txt_data = []
                 self.txt_data = txt.readlines()
@@ -69,8 +73,8 @@ Total de lineas: {len(self.txt_data)}</p>"""}
             
 
     def process_files(self):
-            # Obtener las coincidencias entre excel y txt por DNI
-            # Verificar si en la columna de excel son numeros
+            # Get coincidences between excel and txt 
+            # Verify if column selected from excel is numeric
             self.process_result_info["excel_wrong_data_rows"] = []
             self.process_result_info["txt_wrong_data_rows"] = []
             self.process_result_info["coincidences"] = []
@@ -78,28 +82,25 @@ Total de lineas: {len(self.txt_data)}</p>"""}
             for i, row in self.excel_df.iterrows():
                 if not re.match("^[0-9]+$", row[self.view.columns_select.currentText()]):
                     self.process_result_info["excel_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor no es numérico.", "row": i+1})
-   
-            # Controlar las lineas en txt
-            # Posibilidad de mejora: controlar al cargar el archivo en memoria para 
-            # no volver a recorrerlo
-            # el problema es que al cargar no tengo las posiciones aún
+
+            # Control lines in txt
             for i, line in enumerate(self.txt_data, start=0):
                 if not re.match("^[0-9]+$", line[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())]):
                     self.process_result_info["txt_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({self.view.txt_start_position_input.text()}, {self.view.txt_end_position_input.text()}) no es numérico.", "row": i+1})
             
-            # Recorrer txt y cada linea comparar con los dni del excel
+            # Run through txt to compare with excel
             for row in self.txt_data:
                         if (row[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())] 
                             in self.excel_df[self.view.columns_select.currentText()].astype(str).tolist()): 
                             
                             self.coincidences.append(row)
             
-            # Seteo de objeto de errores para enviar a la vista
+            # Set coincidences
             self.process_result_info["coincidences"] = len(self.coincidences)
             return self.process_result_info
             
     def write_txt(self):
-            # Agregar coincidencias al nuevo txt              
+            # Save coincidences in new txt              
             save_path, _ = QFileDialog.getSaveFileName(
                 self.view,
                 "Guardar archivo",

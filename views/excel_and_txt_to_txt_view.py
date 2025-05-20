@@ -19,26 +19,30 @@ class ExcelAndTxtToTxtView(QWidget):
         self.controller = ExcelAndTxtToTxtController(self)
         self.excel_details = None
         self.txt_details = None
-        # Variables para control de errores
+        # Variables for error control
         self.process_result_details = {}
         self.files_abstract_structure = {}
-        self.setObjectName("ExcelAndTxtToTxtView")  # Para usar en QSS
+        
+        #Setting ID to use in styles
+        self.setObjectName("ExcelAndTxtToTxtView")
 
         self.setStyleSheet("""
             #ExcelAndTxtToTxtView {
                 background-color: 'red'
             }
         """)
-                
+        
+        #Main container Layout
         main_contaniner = QVBoxLayout()
         main_contaniner.setSpacing(10)
         main_contaniner.setContentsMargins(0,0,0,0)
         
-        #Titulo
+        #Title
         title = QLabel("Cruce de Datos Excel - Txt y Generación de Txt")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("color: white; font-size: 24px")
-        # Contenedor archivos
+        
+        # Open files button section
         open_files_layout = QHBoxLayout()
         open_files_container = QWidget(self)
         open_excel_button = QPushButton("Abrir Excel") 
@@ -48,7 +52,8 @@ class ExcelAndTxtToTxtView(QWidget):
         open_files_container.setLayout(open_files_layout)
         open_excel_button.setCursor(Qt.PointingHandCursor)
         open_txt_button.setCursor(Qt.PointingHandCursor)
-        # Contenedor inputs
+        
+        # region Inputs Section
         inputs_layout = QGridLayout()
         inputs_container = QWidget(self)
         open_excel_button.clicked.connect(self.on_open_excel_button_click)
@@ -106,8 +111,9 @@ class ExcelAndTxtToTxtView(QWidget):
         inputs_layout.setColumnStretch(0, 1)
         inputs_layout.setColumnStretch(1, 1)
         inputs_container.setLayout(inputs_layout)
+        #endregion
         
-        # Boton de procesar archivos
+        # Process Files Button Section
         process_files_button = QPushButton("Procesar archivos")
         process_files_button.setStyleSheet("""
             background-color: #702525;
@@ -118,7 +124,8 @@ class ExcelAndTxtToTxtView(QWidget):
         process_files_button.setCursor(Qt.PointingHandCursor)
         process_files_button.clicked.connect(self.on_process_files_button_click)
         
-        # Contenedor Texto detalles de archivos
+
+        #Container Details Files Text
         self.files_abstract = QTextBrowser()
         self.files_abstract.setText("")
         self.files_abstract.setReadOnly(True)
@@ -129,7 +136,7 @@ class ExcelAndTxtToTxtView(QWidget):
             max-height: 300px;
         """)
 
-        
+        # Open Files Button Styles
         open_excel_button.setStyleSheet("background-color: #702525; color: #ffffff; padding: 10px, 10px, 10px, 10px; font-size: 16px;") 
         open_txt_button.setStyleSheet("background-color: #702525; color: #ffffff; padding: 10px, 10px, 10px, 10px; font-size: 16px;")
         self.txt_start_position_input.setStyleSheet("""
@@ -144,7 +151,8 @@ class ExcelAndTxtToTxtView(QWidget):
             padding: 5px;
             font-size: 16px 
         """)
-        # Boton de guardar archivo
+        
+        # Save Result in File Button
         save_file_button = QPushButton("Guardar") 
         save_file_button.setCursor(Qt.PointingHandCursor)
         save_file_button.setStyleSheet("""
@@ -207,6 +215,7 @@ class ExcelAndTxtToTxtView(QWidget):
         #self.update_files_details_text(self.txt_details["files_abstract_text"])
         
     def on_process_files_button_click(self):
+        # Alerts 
         if not self.excel_details:
             QMessageBox.warning(self, "Informacion", "No has seleccionado una Planilla Excel.")
             return
@@ -245,6 +254,7 @@ class ExcelAndTxtToTxtView(QWidget):
         # self.label_txt_wrong_data_rows.setTextInteractionFlags(Qt.TextBrowserInteraction)
         # self.label_txt_wrong_data_rows.linkActivated.connect(self.show_txt_error_details)
         
+        # Set Process Files Text
         self.files_abstract_structure["coincidences_found"] = f"Coincidencias encontradas: {self.process_result_details["coincidences"]}<br>"
         self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}  <a href='show_excel_errors_details'>Ver Detalles</a><br>"
         self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}  <a href='show_txt_errors_details'>Ver Detalles</a><br>"
