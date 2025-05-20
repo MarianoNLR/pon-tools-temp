@@ -5,9 +5,10 @@ import tkintertools as tkt
 import customtkinter as ctk
 import re
 from tkinter import messagebox
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QPushButton, QLineEdit, QTextEdit, QHBoxLayout, QComboBox, QLabel, QMessageBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QPushButton, QLineEdit, QTextEdit, QHBoxLayout, QComboBox, QLabel, QMessageBox, QTextBrowser
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIntValidator
+from views.errors_details_view import ErrorsDetailsView
 
 
 class ExcelAndTxtToTxtView(QWidget):
@@ -118,12 +119,16 @@ class ExcelAndTxtToTxtView(QWidget):
         process_files_button.clicked.connect(self.on_process_files_button_click)
         
         # Contenedor Texto detalles de archivos
-        self.files_abstract = QTextEdit()
+        self.files_abstract = QTextBrowser()
+        self.files_abstract.setText("")
+        self.files_abstract.setReadOnly(True)
+        self.files_abstract.setTextInteractionFlags(Qt.TextBrowserInteraction) 
+        self.files_abstract.anchorClicked.connect(self.show_error_details)
         self.files_abstract.setPlaceholderText("Seleccione los archivos y proceselos para ver la información.")
         self.files_abstract.setStyleSheet("""
             max-height: 300px;
         """)
-        self.files_abstract.setReadOnly(True)
+
         
         open_excel_button.setStyleSheet("background-color: #702525; color: #ffffff; padding: 10px, 10px, 10px, 10px; font-size: 16px;") 
         open_txt_button.setStyleSheet("background-color: #702525; color: #ffffff; padding: 10px, 10px, 10px, 10px; font-size: 16px;")
@@ -222,18 +227,52 @@ class ExcelAndTxtToTxtView(QWidget):
         #self.files_abstract.append(f"Coincidencias encontradas: {self.process_result_details["coincidences"]}")
         #self.files_abstract.append(f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}")
         #self.files_abstract.append(f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}")
-        self.files_abstract_structure["coincidences_found"] = f"Coincidencias encontradas: {self.process_result_details["coincidences"]}"
-        self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}"
-        self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}"
+        # self.label_excel_wrong_data_rows = QLabel(
+        #     f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}  <a href='#'>Ver Detalles</a>"
+        # )
+        # self.label_excel_wrong_data_rows.setOpenExternalLinks(False)
+        # self.label_excel_wrong_data_rows.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        # self.label_excel_wrong_data_rows.linkActivated.connect(self.show_excel_error_details)
+        
+        # self.label_txt_wrong_data_rows = QLabel(
+        #     f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}  <a href='#'>Ver Detalles</a>"
+        # )
+        # self.label_txt_wrong_data_rows.setOpenExternalLinks(False)
+        # self.label_txt_wrong_data_rows.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        # self.label_txt_wrong_data_rows.linkActivated.connect(self.show_txt_error_details)
+        
+        self.files_abstract_structure["coincidences_found"] = f"Coincidencias encontradas: {self.process_result_details["coincidences"]}<br>"
+        self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}  <a href='show_excel_errors_details'>Ver Detalles</a><br>"
+        self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}  <a href='show_txt_errors_details'>Ver Detalles</a><br>"
         self.update_files_details_text()
         
         
     def update_files_details_text(self):
-        #self.files_abstract.append(msg)
         self.files_abstract.setText("")
-        for text in self.files_abstract_structure:
-            print(self.files_abstract_structure[text])
-            self.files_abstract.append(self.files_abstract_structure[text])
+        text = ""
+        for i in self.files_abstract_structure:
+            print(self.files_abstract_structure[i])
+            text += self.files_abstract_structure[i]
+        self.files_abstract.setHtml(text)
         
     def on_save_result_button_click(self):
        self.controller.write_txt()
+    
+    
+    def show_error_details(self, url):
+        link = url.toString()
+        if link == "show_excel_errors_details":
+            self.show_excel_error_details() 
+        elif link == "show_txt_errors_details":
+            self.show_txt_error_details()
+        
+        #Update files and process details if not text is cleared
+        self.update_files_details_text()
+    
+    def show_excel_error_details(self):
+        self.errors_details_window = ErrorsDetailsView("Errores en el Excel", "Excel", self.process_result_details["excel_wrong_data_rows"])
+        self.errors_details_window.exec()
+
+    def show_txt_error_details(self):
+        self.errors_details_window = ErrorsDetailsView("Errores en el Txt", "Txt", self.process_result_details["txt_wrong_data_rows"])
+        self.errors_details_window.exec()
