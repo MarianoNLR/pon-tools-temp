@@ -2,6 +2,7 @@ import tkinter as tk
 from views.excel_and_txt_to_txt_view import ExcelAndTxtToTxtView
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QFrame
 from PySide6.QtCore import Qt
+from resource_path import resource_path
 
 class Sidebar(QWidget):
     def __init__(self, root, main_content):
@@ -58,21 +59,23 @@ class Sidebar(QWidget):
         # sidebar_layout.addWidget(self.sidebar_opt3)
         # sidebar_layout.addWidget(self.sidebar_opt4)
         
+        
         self.setLayout(sidebar_layout)
-        self.setStyleSheet("""
-            #sidebar {
-                background-image: url("D:/Projects/PON-Tools - pyside/components/prism_red.png");     
+        bg_img_path = resource_path("assets/prism_red.png")
+        self.setStyleSheet(f"""
+            #sidebar {{
+                background-image: url("{bg_img_path.replace("\\", "/")}");     
                 background-color: #de4c47;
-            }
+            }}
             
-            QPushButton[sidebar_option_button="true"] {
+            QPushButton[sidebar_option_button="true"] {{
                 background-color: transparent;
                 padding: 10px;
-            }
+            }}
             
-            QPushButton[sidebar_option_button="true"]:hover {
+            QPushButton[sidebar_option_button="true"]:hover {{
                 background-color: rgba(255, 255, 255, 0.1);
-            }
+            }}
         """)
         
     def on_click_option1(self):
