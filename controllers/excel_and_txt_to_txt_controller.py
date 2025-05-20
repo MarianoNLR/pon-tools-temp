@@ -29,11 +29,11 @@ class ExcelAndTxtToTxtController():
             ### Cargo las columnas como String por el momento porque sino
             ### algunos datos se guardan con notación cientifica en el nuevo excel ###
             #Cargar combobox con columnas del excel seleccionado
-            return {"files_abstract_text": f"""Detalles del Excel Seleccionado:\r
-Nombre: {os.path.basename(excel_file)}\r
-Tamaño: {os.path.getsize(excel_file) / (1024 * 1024):.2f} MB\r
-Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(excel_file)).strftime("%Y-%m-%D")}\r
-Total de registros: {len(self.excel_df)}\n\n""", 
+            return {"files_abstract_text": f"""<p>Detalles del Excel Seleccionado:<br>
+Nombre: {os.path.basename(excel_file)}<br>
+Tamaño: {os.path.getsize(excel_file) / (1024 * 1024):.2f} MB<br>
+Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(excel_file)).strftime("%Y-%m-%D")}<br>
+Total de registros: {len(self.excel_df)}</p>""", 
                     "columns_list": self.excel_df.columns.tolist()}
             
             
@@ -50,11 +50,11 @@ Total de registros: {len(self.excel_df)}\n\n""",
                 self.txt_data = []
                 self.txt_data = txt.readlines()
                 self.txt_data = [line.replace("\r\n", "\n") for line in self.txt_data]
-            return {"files_abstract_text": f"""Detalles del Txt Seleccionado:\r
-Nombre: {os.path.basename(txt_file)}\r
-Tamaño: {os.path.getsize(txt_file) / (1024 * 1024):.2f} MB\r
-Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(txt_file)).strftime("%Y-%m-%D")}\r
-Total de lineas: {len(self.txt_data)}\n\n"""}
+            return {"files_abstract_text": f"""<p>Detalles del Txt Seleccionado:<br>
+Nombre: {os.path.basename(txt_file)}<br>
+Tamaño: {os.path.getsize(txt_file) / (1024 * 1024):.2f} MB<br>
+Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(txt_file)).strftime("%Y-%m-%D")}<br>
+Total de lineas: {len(self.txt_data)}</p>"""}
         else:
             print("No se seleccionó ningun archivo.")
             return     
