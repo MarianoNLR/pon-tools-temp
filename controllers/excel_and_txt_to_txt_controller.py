@@ -40,18 +40,9 @@ class ExcelAndTxtToTxtController(QObject):
             self.loader_thread = FileLoaderThread(excel_file)
             self.loader_thread.finished.connect(self.on_excel_loaded)
             self.loader_thread.error.connect(self.on_excel_load_error)
+            self.loading_dialog.rejected.connect(self.cancel_file_loading)
             self.loader_thread.start()
-            
-            ### Set columns as string because some data is saved using scientific notation
-            # Fill Combobox with columns obtained from selected excel
-#             return {"files_abstract_text": f"""<p>Detalles del Excel Seleccionado:<br>
-# Nombre: {os.path.basename(excel_file)}<br>
-# Tamaño: {os.path.getsize(excel_file) / (1024 * 1024):.2f} MB<br>
-# Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(excel_file)).strftime("%Y-%m-%D")}<br>
-# Total de registros: {len(self.excel_df)}</p>""", 
-#                     "columns_list": self.excel_df.columns.tolist()}
-            
-            
+                   
     def open_txt(self):
         txt_file, _ = QFileDialog.getOpenFileName(
             self.view,
@@ -73,30 +64,39 @@ class ExcelAndTxtToTxtController(QObject):
             self.loader_thread = FileLoaderThread(txt_file)
             self.loader_thread.finished.connect(self.on_txt_loaded)
             self.loader_thread.error.connect(self.on_txt_load_error)
+            self.loading_dialog.rejected.connect(self.cancel_file_loading)
             self.loader_thread.start()
         else:
             print("No se seleccionó ningun archivo.")
             return     
+        
+    def cancel_file_loading(self):
+        if self.loader_thread and self.loader_thread.isRunning():
+                self.loader_thread.terminate()
             
+        if self.loading_dialog and self.loading_dialog.isVisible():
+            self.loading_dialog.close()
+         
     def on_txt_loaded(self, txt_loaded_info):
-        self.loading_dialog.accept()
-        # self.view.txt_details = txt_loaded_info["files_abstract_text"]
-        # self.view.txt_data = txt_loaded_info["txt_data"]
+        print("Archivo TXT cargado correctamente.")
+
         self.txt_data = txt_loaded_info["txt_data"]
         self.txt_loaded_signal.emit(txt_loaded_info)
+        self.loading_dialog.close()
         
     def on_txt_load_error(self, error_message):
-        self.loading_dialog.reject()
+        self.loading_dialog.close()
         QMessageBox.critical(self.view, "Error al cargar el archivo", error_message)
     
     def on_excel_loaded(self, excel_loaded_info):
         self.view.columns_select.clear()
-        self.loading_dialog.accept()
         self.excel_df = excel_loaded_info["excel_df"]
         self.excel_loaded_signal.emit(excel_loaded_info)
+        self.loading_dialog.close()
+        
     
     def on_excel_load_error(self, error_message):
-        self.loading_dialog.reject()
+        self.loading_dialog.close()
         QMessageBox.critical(self.view, "Error al cargar el archivo", error_message)
     
     def process_files(self):

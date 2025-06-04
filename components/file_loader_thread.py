@@ -3,30 +3,43 @@ import os
 from datetime import datetime
 import pandas as pd
 from components.file_type import FileType
+import time
 
 class FileLoaderThread(QThread):
     finished = Signal(dict)
     error = Signal(str)
-    resume = {}
+   
     def __init__(self, file_path):
         super().__init__()
         self.file_path = file_path
+        self.resume = {}
+        self.cancelled = False
+
+    def cancel(self):
+        self.cancelled = True
     
     def run(self):
         try:
+            if self.cancelled:
+                return
+            
             file_type = FileType.get_file_extension(self.file_path)
             if file_type == FileType.TXT:
                 self.read_txt_file()
             if file_type == FileType.EXCEL:
                 self.read_excel_file()
             
-            
-            self.finished.emit(self.resume)    
+            if not self.cancelled:
+                self.finished.emit(self.resume)
         except Exception as e:
-            self.error.emit(f"Error al cargar el archivo: {str(e)}")
-    
+            if not self.cancelled:
+                self.error.emit(f"Error al cargar el archivo: {str(e)}")
+            
+    # Reads text file and stores its content
     def read_txt_file(self):
         try:
+            if self.cancelled:
+                return
             with open(self.file_path, "r", encoding="cp1252", newline="") as txt:
                 self.txt_data = []
                 self.txt_data = txt.readlines()
@@ -38,8 +51,10 @@ Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(self.file_path)).
 Total de lineas: {len(self.txt_data)}</p>"""
             self.resume["txt_data"] = self.txt_data
         except Exception as e:
-            raise ValueError(f"Error al leer el archivo: {str(e)}")
+            if not self.cancelled:
+                raise ValueError(f"Error al leer el archivo: {str(e)}")
     
+    # Reads Excel file and stores its content
     def read_excel_file(self):
         try:
             self.excel_df = pd.read_excel(self.file_path).astype(str)
