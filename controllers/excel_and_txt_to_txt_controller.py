@@ -9,7 +9,7 @@ class ExcelAndTxtToTxtController():
     
     def __init__(self, view):
         self.view = view
-        self.coincidences = []
+        self.coincidences = {}
         self.process_result_info = {}
         
     def open_excel(self):
@@ -78,7 +78,7 @@ Total de lineas: {len(self.txt_data)}</p>"""}
             self.process_result_info["excel_wrong_data_rows"] = []
             self.process_result_info["txt_wrong_data_rows"] = []
             self.process_result_info["coincidences"] = []
-            self.coincidences = []
+            self.coincidences = {}
             for i, row in self.excel_df.iterrows():
                 if not re.match("^[0-9]+$", row[self.view.columns_select.currentText()]):
                     self.process_result_info["excel_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor no es numérico.", "row": i+1})
@@ -90,12 +90,15 @@ Total de lineas: {len(self.txt_data)}</p>"""}
             
             # Run through txt to compare with excel
             for row in self.txt_data:
-                        if (row[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())] 
-                            in self.excel_df[self.view.columns_select.currentText()].astype(str).tolist()): 
-                            
-                            self.coincidences.append(row)
+                selected_column = self.view.columns_select.currentText()
+                dni_txt = row[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())]
+                
+                if dni_txt in self.excel_df[selected_column].astype(str).tolist():
+                    if dni_txt not in self.coincidences:
+                        self.coincidences[dni_txt] = row
+                    #self.coincidences.append(row)
             
-            # Set coincidences
+            # Set length coincidences
             self.process_result_info["coincidences"] = len(self.coincidences)
             return self.process_result_info
             
@@ -111,7 +114,7 @@ Total de lineas: {len(self.txt_data)}</p>"""}
             if save_path:
                 with open(save_path, 'w', encoding="utf-8", errors="ignore", newline="\n") as file:
                     #print(self.excel_df[self.coincidences][self.view.columns_options.get()].to_list())
-                    for row in self.coincidences:
+                    for row in self.coincidences.values():
                         file.write(f"{row}")
             
             if save_path:
