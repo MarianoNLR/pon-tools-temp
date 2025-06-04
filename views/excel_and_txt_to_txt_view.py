@@ -46,7 +46,9 @@ class ExcelAndTxtToTxtView(QWidget):
         open_files_layout = QHBoxLayout()
         open_files_container = QWidget(self)
         open_excel_button = QPushButton("Abrir Excel") 
+        open_excel_button.setAutoDefault(True)
         open_txt_button =  QPushButton("Abrir Txt")
+        open_txt_button.setAutoDefault(True)
         open_files_layout.addWidget(open_excel_button)
         open_files_layout.addWidget(open_txt_button)
         open_files_container.setLayout(open_files_layout)
@@ -115,6 +117,7 @@ class ExcelAndTxtToTxtView(QWidget):
         
         # Process Files Button Section
         process_files_button = QPushButton("Procesar archivos")
+        process_files_button.setAutoDefault(True)
         process_files_button.setStyleSheet("""
             background-color: #702525;
             color: #ffffff;
@@ -154,6 +157,7 @@ class ExcelAndTxtToTxtView(QWidget):
         
         # Save Result in File Button
         save_file_button = QPushButton("Guardar") 
+        save_file_button.setAutoDefault(True)
         save_file_button.setCursor(Qt.PointingHandCursor)
         save_file_button.setStyleSheet("""
             background-color: #ffffff;
@@ -176,6 +180,11 @@ class ExcelAndTxtToTxtView(QWidget):
         #main_contaniner.addStretch()
         
         self.setLayout(main_contaniner)
+        QWidget.setTabOrder(self.columns_select, open_txt_button)
+        QWidget.setTabOrder(open_txt_button, self.txt_start_position_input)
+        QWidget.setTabOrder(self.txt_start_position_input, self.txt_end_position_input)
+        QWidget.setTabOrder(self.txt_end_position_input, process_files_button)
+        QWidget.setTabOrder(process_files_button, save_file_button)
         main_frame.layout().addWidget(self)
         
     ### Utils
