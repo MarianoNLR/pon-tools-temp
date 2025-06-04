@@ -4,10 +4,18 @@ import pandas as pd
 import re
 import os
 from PySide6.QtWidgets import QFileDialog, QMessageBox
+from views.loading_dialog_view import LoadingDialogView
+from components.file_loader_thread import FileLoaderThread
+from PySide6.QtCore import Signal, QObject
 
-class ExcelAndTxtToTxtController():
-    
+class ExcelAndTxtToTxtController(QObject):
+    txt_loaded_signal = Signal(dict)
+    excel_loaded_signal = Signal(dict)
+    excel_df = pd.DataFrame()
+    txt_data = None
     def __init__(self, view):
+        
+        super().__init__()
         self.view = view
         self.coincidences = {}
         self.process_result_info = {}
@@ -27,19 +35,21 @@ class ExcelAndTxtToTxtController():
                 QMessageBox.warning(self.view, "Archivo inválido", "Debe seleccionar una rchivo Excel (.xlsx o .xls)")
                 return None
             # Read excel and set dataframe
-            self.excel_df = pd.read_excel(excel_file).astype(str)
-            
-            # Clear Combobox of columns when selecting new file
-            self.view.columns_select.clear()
+            self.loading_dialog = LoadingDialogView(self.view)
+            self.loading_dialog.show()
+            self.loader_thread = FileLoaderThread(excel_file)
+            self.loader_thread.finished.connect(self.on_excel_loaded)
+            self.loader_thread.error.connect(self.on_excel_load_error)
+            self.loader_thread.start()
             
             ### Set columns as string because some data is saved using scientific notation
             # Fill Combobox with columns obtained from selected excel
-            return {"files_abstract_text": f"""<p>Detalles del Excel Seleccionado:<br>
-Nombre: {os.path.basename(excel_file)}<br>
-Tamaño: {os.path.getsize(excel_file) / (1024 * 1024):.2f} MB<br>
-Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(excel_file)).strftime("%Y-%m-%D")}<br>
-Total de registros: {len(self.excel_df)}</p>""", 
-                    "columns_list": self.excel_df.columns.tolist()}
+#             return {"files_abstract_text": f"""<p>Detalles del Excel Seleccionado:<br>
+# Nombre: {os.path.basename(excel_file)}<br>
+# Tamaño: {os.path.getsize(excel_file) / (1024 * 1024):.2f} MB<br>
+# Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(excel_file)).strftime("%Y-%m-%D")}<br>
+# Total de registros: {len(self.excel_df)}</p>""", 
+#                     "columns_list": self.excel_df.columns.tolist()}
             
             
     def open_txt(self):
@@ -57,21 +67,38 @@ Total de registros: {len(self.excel_df)}</p>""",
                 return None
             print(f"Archivo: {txt_file}")
             
-            # Read file  
-            with open(txt_file, "r", encoding="cp1252", newline="") as txt:
-                self.txt_data = []
-                self.txt_data = txt.readlines()
-                self.txt_data = [line.replace("\r\n", "\n") for line in self.txt_data]
-            return {"files_abstract_text": f"""<p>Detalles del Txt Seleccionado:<br>
-Nombre: {os.path.basename(txt_file)}<br>
-Tamaño: {os.path.getsize(txt_file) / (1024 * 1024):.2f} MB<br>
-Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(txt_file)).strftime("%Y-%m-%D")}<br>
-Total de lineas: {len(self.txt_data)}</p>"""}
+            # Read file
+            self.loading_dialog = LoadingDialogView(self.view)
+            self.loading_dialog.show()
+            self.loader_thread = FileLoaderThread(txt_file)
+            self.loader_thread.finished.connect(self.on_txt_loaded)
+            self.loader_thread.error.connect(self.on_txt_load_error)
+            self.loader_thread.start()
         else:
             print("No se seleccionó ningun archivo.")
             return     
             
-
+    def on_txt_loaded(self, txt_loaded_info):
+        self.loading_dialog.accept()
+        # self.view.txt_details = txt_loaded_info["files_abstract_text"]
+        # self.view.txt_data = txt_loaded_info["txt_data"]
+        self.txt_data = txt_loaded_info["txt_data"]
+        self.txt_loaded_signal.emit(txt_loaded_info)
+        
+    def on_txt_load_error(self, error_message):
+        self.loading_dialog.reject()
+        QMessageBox.critical(self.view, "Error al cargar el archivo", error_message)
+    
+    def on_excel_loaded(self, excel_loaded_info):
+        self.view.columns_select.clear()
+        self.loading_dialog.accept()
+        self.excel_df = excel_loaded_info["excel_df"]
+        self.excel_loaded_signal.emit(excel_loaded_info)
+    
+    def on_excel_load_error(self, error_message):
+        self.loading_dialog.reject()
+        QMessageBox.critical(self.view, "Error al cargar el archivo", error_message)
+    
     def process_files(self):
             # Get coincidences between excel and txt 
             # Verify if column selected from excel is numeric

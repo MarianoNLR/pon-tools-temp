@@ -6,7 +6,7 @@ import customtkinter as ctk
 import re
 from tkinter import messagebox
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QPushButton, QLineEdit, QTextEdit, QHBoxLayout, QComboBox, QLabel, QMessageBox, QTextBrowser
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QIntValidator
 from views.errors_details_view import ErrorsDetailsView
 
@@ -17,6 +17,8 @@ class ExcelAndTxtToTxtView(QWidget):
         super().__init__(main_frame)
         
         self.controller = ExcelAndTxtToTxtController(self)
+        self.controller.txt_loaded_signal.connect(self.on_txt_loaded)
+        self.controller.excel_loaded_signal.connect(self.on_excel_loaded)
         self.excel_details = None
         self.txt_details = None
         # Variables for error control
@@ -207,21 +209,42 @@ class ExcelAndTxtToTxtView(QWidget):
         return re.match("^[0-9]+", self.columns_options.get())
     
     def on_open_excel_button_click(self):
-        self.excel_details = self.controller.open_excel()
-        if self.excel_details == None:
-            return
-        self.columns_select.addItems(self.excel_details['columns_list'])
-        self.files_abstract_structure["excel_text"] = self.excel_details["files_abstract_text"]
-        self.update_files_details_text()
+        self.controller.open_excel()
+        # if self.excel_details == None:
+        #     return
+        # self.columns_select.addItems(self.excel_details['columns_list'])
+        # self.files_abstract_structure["excel_text"] = self.excel_details["files_abstract_text"]
+        # self.update_files_details_text()
         #self.update_files_details_text(self.excel_details["files_abstract_text"])
         
     def on_open_txt_button_click(self):
-        self.txt_details = self.controller.open_txt()
-        if self.txt_details == None:
-            return
-        self.files_abstract_structure["txt_text"] = self.txt_details["files_abstract_text"]
-        self.update_files_details_text()
+        self.controller.open_txt()
+        # if self.txt_details == None:
+        #     return
+        # self.files_abstract_structure["txt_text"] = self.txt_details["files_abstract_text"]
+        # self.update_files_details_text()
         #self.update_files_details_text(self.txt_details["files_abstract_text"])
+    
+    def on_excel_loaded(self, excel_loaded_info):
+        if excel_loaded_info is None:
+            QMessageBox.warning(self, "Informacion", "No se pudo cargar el archivo de Excel.")
+            return
+        self.excel_details = excel_loaded_info["files_abstract_text"]
+        self.files_abstract_structure["excel_text"] = excel_loaded_info["files_abstract_text"]
+        print("a: ", excel_loaded_info['columns_list'])
+        self.columns_select.addItems(excel_loaded_info['columns_list'])
+        print("BUE")
+        self.update_files_details_text()
+        
+    def on_txt_loaded(self, txt_loaded_info):
+        print("TXT LOADED")
+        if txt_loaded_info is None:
+            QMessageBox.warning(self, "Informacion", "No se pudo cargar el archivo de texto.")
+            return
+        self.txt_details = txt_loaded_info["files_abstract_text"]
+        self.files_abstract_structure["txt_text"] = self.txt_details
+        self.update_files_details_text()
+        #self.update_files_details_text(txt_loaded_info["files_abstract_text"])
         
     def on_process_files_button_click(self):
         # Alerts 
@@ -271,6 +294,7 @@ class ExcelAndTxtToTxtView(QWidget):
         
         
     def update_files_details_text(self):
+        print("RE XD")
         self.files_abstract.setText("")
         text = ""
         for i in self.files_abstract_structure:
