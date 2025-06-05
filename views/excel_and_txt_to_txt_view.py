@@ -42,7 +42,7 @@ class ExcelAndTxtToTxtView(QWidget):
         #Title
         title = QLabel("Cruce de Datos Excel - Txt y Generación de Txt")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("color: white; font-size: 24px")
+        title.setStyleSheet("color: white; font-size: 24px; font-weight: bold;")
         
         # Open files button section
         open_files_layout = QHBoxLayout()
@@ -118,16 +118,31 @@ class ExcelAndTxtToTxtView(QWidget):
         #endregion
         
         # Process Files Button Section
-        process_files_button = QPushButton("Procesar archivos")
-        process_files_button.setAutoDefault(True)
-        process_files_button.setStyleSheet("""
+        self.process_files_button = QPushButton("Procesar archivos")
+        self.process_files_button.setAutoDefault(True)
+        self.process_files_button.setStyleSheet("""
             background-color: #702525;
             color: #ffffff;
             padding: 5px, 10px, 10px, 10px;
             font-size: 16px 
         """)
-        process_files_button.setCursor(Qt.PointingHandCursor)
-        process_files_button.clicked.connect(self.on_process_files_button_click)
+        self.process_files_button.setCursor(Qt.PointingHandCursor)
+        self.process_files_button.clicked.connect(self.on_process_files_button_click)
+        self.process_files_button.setDisabled(True)
+        self.process_files_button.setStyleSheet(
+            """
+            QPushButton {
+                font-size: 16px; 
+                color: white; 
+                background-color: #702525;
+                padding: 5px, 10px, 10px, 10px; 
+            }
+            
+            QPushButton:disabled {
+                background-color: #c16666;
+                color: black;
+            }
+            """)
         
 
         #Container Details Files Text
@@ -158,35 +173,45 @@ class ExcelAndTxtToTxtView(QWidget):
         """)
         
         # Save Result in File Button
-        save_file_button = QPushButton("Guardar") 
-        save_file_button.setAutoDefault(True)
-        save_file_button.setCursor(Qt.PointingHandCursor)
-        save_file_button.setStyleSheet("""
-            background-color: #ffffff;
-            color: #000000;
-            padding: 5px, 10px, 10px, 10px;
-            font-size: 16px ;
-            border-radius: 5px;
-        """)
-        save_file_button.setMinimumWidth(200)
-        save_file_button.setMaximumWidth(200)
-        save_file_button.clicked.connect(self.on_save_result_button_click)
+        self.save_file_button = QPushButton("Guardar") 
+        self.save_file_button.setAutoDefault(True)
+        self.save_file_button.setCursor(Qt.PointingHandCursor)
+        #self.save_file_button.setDisabled(True)
+        
+        self.save_file_button.setStyleSheet("""
+            QPushButton {
+                font-size: 16px; 
+                color: #000000; 
+                background-color: #ffffff;
+                padding: 5px, 10px, 10px, 10px;
+                width: 200px;
+                border-radius: 5px;       
+                }
+            
+            QPushButton:disabled {
+                background-color: #918e8e;
+                color: #f2f2f2;
+            }
+            """)
+        self.save_file_button.setMinimumWidth(200)
+        self.save_file_button.setMaximumWidth(200)
+        self.save_file_button.clicked.connect(self.on_save_result_button_click)
         main_contaniner.addWidget(title)
         main_contaniner.addWidget(open_files_container)
         main_contaniner.addWidget(inputs_container)
-        main_contaniner.addWidget(process_files_button)
-        #main_contaniner.addStretch()
+        main_contaniner.addStretch()
+        main_contaniner.addWidget(self.process_files_button)
         main_contaniner.addWidget(self.files_abstract)
         #main_contaniner.addStretch()
-        main_contaniner.addWidget(save_file_button, alignment=Qt.AlignCenter)
+        main_contaniner.addWidget(self.save_file_button, alignment=Qt.AlignCenter)
         #main_contaniner.addStretch()
         
         self.setLayout(main_contaniner)
         QWidget.setTabOrder(self.columns_select, open_txt_button)
         QWidget.setTabOrder(open_txt_button, self.txt_start_position_input)
         QWidget.setTabOrder(self.txt_start_position_input, self.txt_end_position_input)
-        QWidget.setTabOrder(self.txt_end_position_input, process_files_button)
-        QWidget.setTabOrder(process_files_button, save_file_button)
+        QWidget.setTabOrder(self.txt_end_position_input, self.process_files_button)
+        QWidget.setTabOrder(self.process_files_button, self.save_file_button)
         main_frame.layout().addWidget(self)
         
     ### Utils
@@ -231,13 +256,14 @@ class ExcelAndTxtToTxtView(QWidget):
             return
         self.excel_details = excel_loaded_info["files_abstract_text"]
         self.files_abstract_structure["excel_text"] = excel_loaded_info["files_abstract_text"]
-        print("a: ", excel_loaded_info['columns_list'])
+        
         self.columns_select.addItems(excel_loaded_info['columns_list'])
-        print("BUE")
+        
         self.update_files_details_text()
+        self.check_if_save_button_available()
         
     def on_txt_loaded(self, txt_loaded_info):
-        print("TXT LOADED")
+        
         if txt_loaded_info is None:
             QMessageBox.warning(self, "Informacion", "No se pudo cargar el archivo de texto.")
             return
@@ -245,6 +271,7 @@ class ExcelAndTxtToTxtView(QWidget):
         self.files_abstract_structure["txt_text"] = self.txt_details
         self.update_files_details_text()
         #self.update_files_details_text(txt_loaded_info["files_abstract_text"])
+        self.check_if_save_button_available()
         
     def on_process_files_button_click(self):
         # Alerts 
@@ -268,6 +295,8 @@ class ExcelAndTxtToTxtView(QWidget):
             return
         
         self.process_result_details = self.controller.process_files()
+        if self.process_result_details is not None:
+            self.save_file_button.setDisabled(False)
         
         #self.files_abstract.append(f"Coincidencias encontradas: {self.process_result_details["coincidences"]}")
         #self.files_abstract.append(f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}")
@@ -294,16 +323,16 @@ class ExcelAndTxtToTxtView(QWidget):
         
         
     def update_files_details_text(self):
-        print("RE XD")
         self.files_abstract.setText("")
         text = ""
         for i in self.files_abstract_structure:
-            print(self.files_abstract_structure[i])
             text += self.files_abstract_structure[i]
         self.files_abstract.setHtml(text)
         
     def on_save_result_button_click(self):
-       self.controller.write_txt()
+        if not self.process_result_details:
+            return
+        self.controller.write_txt()
     
     
     def show_error_details(self, url):
@@ -323,3 +352,7 @@ class ExcelAndTxtToTxtView(QWidget):
     def show_txt_error_details(self):
         self.errors_details_window = ErrorsDetailsView("Errores en el Txt", "Txt", self.process_result_details["txt_wrong_data_rows"])
         self.errors_details_window.exec()
+    
+    def check_if_save_button_available(self):
+        if self.excel_details and self.txt_details:
+            self.process_files_button.setDisabled(False)
