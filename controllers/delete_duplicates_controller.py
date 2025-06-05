@@ -62,8 +62,10 @@ class DeleteDuplicatesController:
     def remove_duplicates(self):
         if isinstance(self.file_data, pd.DataFrame):
             # Process DataFrame to remove duplicates
-            self.file_data.drop_duplicates(inplace=True)
-            self.duplicates_removed = len(self.file_data)
+            df_filtered = self.file_data.drop_duplicates()
+            self.duplicates_removed = len(self.file_data) - len(df_filtered)
+            if not self.duplicates_removed:
+                self.duplicates_removed = 0
             
         elif isinstance(self.file_data, list):
             # Process list to remove duplicates
