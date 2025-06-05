@@ -37,6 +37,7 @@ class DeleteDuplicateView(QWidget):
         # #layout.addWidget(self.select_file_button, alignment = Qt.AlignTop | Qt.AlignHCenter)
         self.select_file_button.clicked.connect(self.open_file)
         self.file_details_layout.addWidget(self.select_file_button, alignment = Qt.AlignHCenter)
+        self.select_file_button.setCursor(Qt.PointingHandCursor)
         # # File Detailes title and details
         
         self.file_details_title = QLabel("Detalles del archivo", self)
@@ -68,6 +69,7 @@ class DeleteDuplicateView(QWidget):
         #layout.addWidget(self.process_button, alignment = Qt.AlignTop | Qt.AlignHCenter)
         self.process_button.clicked.connect(self.on_click_process_button)
         self.process_button.setDisabled(True)
+        self.process_button.setCursor(Qt.PointingHandCursor)
         
         # # File Process Details
         self.process_details = QTextEdit("Detalles del proceso aparecerán aquí.", self)
@@ -103,6 +105,7 @@ class DeleteDuplicateView(QWidget):
         self.save_result_button.clicked.connect(self.on_save_result_button_clicked)
         self.process_button.setDisabled(True)
         self.save_result_button.setDisabled(True)
+        self.save_result_button.setCursor(Qt.PointingHandCursor)
         
         # Set the layout for the widget
         
@@ -114,6 +117,11 @@ class DeleteDuplicateView(QWidget):
         main_contaniner.addWidget(self.process_button)
         main_contaniner.addWidget(self.process_details)
         main_contaniner.addWidget(self.save_result_button, alignment=Qt.AlignCenter)
+        QWidget.setTabOrder(self.select_file_button, self.process_button)
+        QWidget.setTabOrder(self.process_button, self.save_result_button)
+        self.select_file_button.setAutoDefault(True)
+        self.process_button.setAutoDefault(True)
+        self.save_result_button.setAutoDefault(True)
         self.setLayout(main_contaniner)
         main_frame.layout().addWidget(self)
     
