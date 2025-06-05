@@ -1,5 +1,6 @@
 import tkinter as tk
 from views.excel_and_txt_to_txt_view import ExcelAndTxtToTxtView
+from views.delete_duplicates_view import DeleteDuplicateView
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QFrame
 from PySide6.QtCore import Qt
 from resource_path import resource_path
@@ -32,10 +33,10 @@ class Sidebar(QWidget):
         self.sidebar_opt1.clicked.connect(self.on_click_option1)
         self.sidebar_opt1.setProperty("sidebar_option_button", True)
         
-        # self.sidebar_opt2 = QPushButton("Opcion 2", self)
-        # self.sidebar_opt2.setProperty("sidebar_option_button", True)
-        # self.sidebar_opt2.setStyleSheet("color: white; font-size: 20px;")
-        # self.sidebar_opt2.clicked.connect(self.show_option2_frame)
+        self.sidebar_opt2 = QPushButton("Eliminar duplicados", self)
+        self.sidebar_opt2.setProperty("sidebar_option_button", True)
+        self.sidebar_opt2.setStyleSheet("color: white; font-size: 20px;")
+        self.sidebar_opt2.clicked.connect(self.show_option2_frame)
 
         # self.sidebar_opt3 = QPushButton("Opcion 3", self)
         # self.sidebar_opt3.setProperty("sidebar_option_button", True)
@@ -55,7 +56,7 @@ class Sidebar(QWidget):
         
         # Añadir los botones al layout
         sidebar_layout.addWidget(self.sidebar_opt1)
-        # sidebar_layout.addWidget(self.sidebar_opt2)
+        sidebar_layout.addWidget(self.sidebar_opt2)
         # sidebar_layout.addWidget(self.sidebar_opt3)
         # sidebar_layout.addWidget(self.sidebar_opt4)
         #endregion
@@ -85,17 +86,9 @@ class Sidebar(QWidget):
         ExcelAndTxtToTxtView(self.main_content)
         
     ### Mostrar Frame de Opcion 2
-    # def show_option2_frame(self):
-    #     self.clear_main_content()  # Limpiar contenido anterior
-
-    #     opcion2_frame = QFrame(self.main_content)
-    #     opcion2_frame.setStyleSheet("background-color: #212121; height: 300px;")
-    #     self.main_content.layout().addWidget(opcion2_frame)
-
-    #     label = QLabel("Bienvenido a la Opcion 2", opcion2_frame)
-    #     label.setStyleSheet("color: white; font-size: 40px;")
-    #     label.setAlignment(Qt.AlignCenter)
-    #     opcion2_frame.layout().addWidget(label)
+    def show_option2_frame(self):
+        self.clear_main_content()  # Limpiar contenido anterior
+        DeleteDuplicateView(self.main_content)
         
     # ### Mostrar Frame de Opcion 3
     # def show_option3_frame(self):
