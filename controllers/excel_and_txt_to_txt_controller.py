@@ -102,32 +102,38 @@ class ExcelAndTxtToTxtController(QObject):
     def process_files(self):
             # Get coincidences between excel and txt 
             # Verify if column selected from excel is numeric
-            self.process_result_info["excel_wrong_data_rows"] = []
-            self.process_result_info["txt_wrong_data_rows"] = []
-            self.process_result_info["coincidences"] = []
-            self.coincidences = {}
-            for i, row in self.excel_df.iterrows():
-                if not re.match("^[0-9]+$", row[self.view.columns_select.currentText()]):
-                    self.process_result_info["excel_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor no es numérico.", "row": i+1})
+            try:
+                self.process_result_info["excel_wrong_data_rows"] = []
+                self.process_result_info["txt_wrong_data_rows"] = []
+                self.process_result_info["coincidences"] = []
+                self.coincidences = {}
+                for i, row in self.excel_df.iterrows():
+                    if not re.match("^[0-9]+$", row[self.view.columns_select.currentText()]):
+                        self.process_result_info["excel_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor no es numérico.", "row": i+1})
 
-            # Control lines in txt
-            for i, line in enumerate(self.txt_data, start=0):
-                if not re.match("^[0-9]+$", line[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())]):
-                    self.process_result_info["txt_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({self.view.txt_start_position_input.text()}, {self.view.txt_end_position_input.text()}) no es numérico.", "row": i+1})
-            
-            # Run through txt to compare with excel
-            for row in self.txt_data:
-                selected_column = self.view.columns_select.currentText()
-                dni_txt = row[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())]
+                # Control lines in txt
+                for i, line in enumerate(self.txt_data, start=0):
+                    if not re.match("^[0-9]+$", line[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())]):
+                        self.process_result_info["txt_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({self.view.txt_start_position_input.text()}, {self.view.txt_end_position_input.text()}) no es numérico.", "row": i+1})
                 
-                if dni_txt in self.excel_df[selected_column].astype(str).tolist():
-                    if dni_txt not in self.coincidences:
-                        self.coincidences[dni_txt] = row
-                    #self.coincidences.append(row)
+                # Run through txt to compare with excel
+                for row in self.txt_data:
+                    selected_column = self.view.columns_select.currentText()
+                    dni_txt = row[int(self.view.txt_start_position_input.text())-1:int(self.view.txt_end_position_input.text())]
+                    
+                    if dni_txt in self.excel_df[selected_column].astype(str).tolist():
+                        if dni_txt not in self.coincidences:
+                            self.coincidences[dni_txt] = row
+                        #self.coincidences.append(row)
+                
+                # Set length coincidences
+                self.process_result_info["coincidences"] = len(self.coincidences)
+                return self.process_result_info
+            except Exception as e:
+                QMessageBox.warning(self, "Error", "Ocurrió un error al procesar los archivos.")
+                return
+                
             
-            # Set length coincidences
-            self.process_result_info["coincidences"] = len(self.coincidences)
-            return self.process_result_info
             
     def write_txt(self):
             # Save coincidences in new txt              
