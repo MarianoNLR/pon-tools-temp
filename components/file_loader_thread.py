@@ -44,7 +44,6 @@ class FileLoaderThread(QThread):
                 self.txt_data = []
                 self.txt_data = txt.readlines()
                 self.txt_data = [line.replace("\r\n", "\n") for line in self.txt_data]
-                
                 self.resume["files_abstract_text"] = f"""<p>Detalles del Txt Seleccionado:<br>
 Nombre: {os.path.basename(self.file_path)}<br>
 Tamaño: {os.path.getsize(self.file_path) / (1024 * 1024):.2f} MB<br>
