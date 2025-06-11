@@ -13,8 +13,7 @@ class Sidebar(QWidget):
         self.main_content = main_content
         # Left Sidebar
         self.setMaximumWidth(350)
-        
-        
+           
         # Sidebar Buttons Layout
         sidebar_layout = QVBoxLayout()
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -28,25 +27,15 @@ class Sidebar(QWidget):
         sidebar_layout.setContentsMargins(0, 0, 0, 0)
                 
         #region Creating Sidebar Buttons
-        self.sidebar_opt1 = QPushButton("Excel - Txt a Txt", self)
-        self.sidebar_opt1.setStyleSheet("color: white; font-size: 20px;")
-        self.sidebar_opt1.clicked.connect(self.on_click_option1)
-        self.sidebar_opt1.setProperty("sidebar_option_button", True)
+        self.sidebar_excel_and_txt_to_txt = QPushButton("Cruce de Datos", self)
+        self.sidebar_excel_and_txt_to_txt.setStyleSheet("color: white; font-size: 20px;")
+        self.sidebar_excel_and_txt_to_txt.clicked.connect(self.on_click_excel_and_txt_to_txt)
+        self.sidebar_excel_and_txt_to_txt.setProperty("sidebar_option_button", True)
         
-        self.sidebar_opt2 = QPushButton("Eliminar duplicados", self)
-        self.sidebar_opt2.setProperty("sidebar_option_button", True)
-        self.sidebar_opt2.setStyleSheet("color: white; font-size: 20px;")
-        self.sidebar_opt2.clicked.connect(self.show_option2_frame)
-
-        # self.sidebar_opt3 = QPushButton("Opcion 3", self)
-        # self.sidebar_opt3.setProperty("sidebar_option_button", True)
-        # self.sidebar_opt3.setStyleSheet("color: white; font-size: 20px;")
-        # self.sidebar_opt3.clicked.connect(self.show_option3_frame)
-
-        # self.sidebar_opt4 = QPushButton("Opcion 4", self)
-        # self.sidebar_opt4.setProperty("sidebar_option_button", True)
-        # self.sidebar_opt4.setStyleSheet("color: white; font-size: 20px;")
-        # self.sidebar_opt4.clicked.connect(self.show_option4_frame)
+        self.delete_duplicates = QPushButton("Eliminar Duplicados", self)
+        self.delete_duplicates.setProperty("sidebar_option_button", True)
+        self.delete_duplicates.setStyleSheet("color: white; font-size: 20px;")
+        self.delete_duplicates.clicked.connect(self.on_click_delete_duplicates)
         
         buttons = self.findChildren(QPushButton)
         
@@ -55,10 +44,8 @@ class Sidebar(QWidget):
             button.setCursor(Qt.PointingHandCursor)
         
         # Añadir los botones al layout
-        sidebar_layout.addWidget(self.sidebar_opt1)
-        sidebar_layout.addWidget(self.sidebar_opt2)
-        # sidebar_layout.addWidget(self.sidebar_opt3)
-        # sidebar_layout.addWidget(self.sidebar_opt4)
+        sidebar_layout.addWidget(self.sidebar_excel_and_txt_to_txt)
+        sidebar_layout.addWidget(self.delete_duplicates)
         #endregion
         
         self.setLayout(sidebar_layout)
@@ -81,40 +68,14 @@ class Sidebar(QWidget):
             }}
         """)
         
-    def on_click_option1(self):
+    def on_click_excel_and_txt_to_txt(self):
         self.clear_main_content()
         ExcelAndTxtToTxtView(self.main_content)
         
     ### Mostrar Frame de Opcion 2
-    def show_option2_frame(self):
+    def on_click_delete_duplicates(self):
         self.clear_main_content()  # Limpiar contenido anterior
         DeleteDuplicateView(self.main_content)
-        
-    # ### Mostrar Frame de Opcion 3
-    # def show_option3_frame(self):
-    #     self.clear_main_content()  # Limpiar contenido anterior
-
-    #     opcion3_frame = QFrame(self.main_content)
-    #     opcion3_frame.setStyleSheet("background-color: #212121; height: 300px;")
-    #     self.main_content.layout().addWidget(opcion3_frame)
-
-    #     label = QLabel("Bienvenido a la Opcion 3", opcion3_frame)
-    #     label.setStyleSheet("color: white; font-size: 40px;")
-    #     label.setAlignment(Qt.AlignCenter)
-    #     opcion3_frame.layout().addWidget(label)
-        
-    # ### Mostrar Frame de Opcion 4
-    # def show_option4_frame(self):
-    #     self.clear_main_content()  # Limpiar contenido anterior
-
-    #     opcion4_frame = QFrame(self.main_content)
-    #     opcion4_frame.setStyleSheet("background-color: #212121; height: 300px;")
-    #     self.main_content.layout().addWidget(opcion4_frame)
-
-    #     label = QLabel("Bienvenido a la Opcion 4", opcion4_frame)
-    #     label.setStyleSheet("color: white; font-size: 40px;")
-    #     label.setAlignment(Qt.AlignCenter)
-    #     opcion4_frame.layout().addWidget(label)
         
     def clear_main_content(self):
         # Clear previous content in main container
