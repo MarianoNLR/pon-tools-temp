@@ -170,11 +170,11 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
         # Run through txt to compare with excel
         for row in txt_data:
             selected_column = view.columns_select.currentText()
-            dni_txt = row[int(view.txt_start_position_input.text())-1:int(view.txt_end_position_input.text())]
+            txt_text = row[int(view.txt_start_position_input.text())-1:int(view.txt_end_position_input.text())]
             
-            if dni_txt in excel_df[selected_column].astype(str).tolist():
-                if dni_txt not in coincidences:
-                    coincidences[dni_txt] = row
+            if txt_text in excel_df[selected_column].astype(str).tolist():
+                if txt_text not in coincidences:
+                    coincidences[txt_text] = row
                 #self.coincidences.append(row)
         
         # Set length coincidences
