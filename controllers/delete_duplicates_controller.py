@@ -69,9 +69,7 @@ class DeleteDuplicatesController(QObject):
         
         if not self.file_path:
             return None
-        print("extensions: ", extensions)
         ext = self.file_path.split('.')[-1].lower()
-        print("ext: ", ext in extensions)
         if ext not in extensions:
             QMessageBox.warning(self.view, "Archivo inválido", "Tipo de archivo no soportado.")
             return None
@@ -97,7 +95,6 @@ class DeleteDuplicatesController(QObject):
             with open(file_path, "r", encoding="utf-8", newline="") as txt:
                 file_data["data"] = txt.readlines()
                 file_data["data"] = [line.replace("\r\n", "\n") for line in file_data["data"]]
-                print(type(file_data))
         return file_data
                 
     def file_loaded(self, file_data):
@@ -163,10 +160,8 @@ class DeleteDuplicatesController(QObject):
         # else:
         #     default_filter = "Todos los archivo (*)"
         file_type = self.file_data["file_type"]
-        print(file_type)
         
         settings = self.FILE_TYPE_SETTINGS.get(file_type)
-        print(settings)
         save_path, _ = QFileDialog.getSaveFileName(
                 self.view,
                 "Guardar archivo",

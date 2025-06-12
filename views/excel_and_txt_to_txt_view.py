@@ -215,22 +215,7 @@ class ExcelAndTxtToTxtView(QWidget):
         QWidget.setTabOrder(self.process_files_button, self.save_file_button)
         main_frame.layout().addWidget(self)
         
-    ### Utils
-    def update_start_position_txt(self, value):
-        print(value)
-        print(self.txt_start_position.get())
-            
-    def update_end_position_txt(self, value):
-        print(value)
-        print(self.txt_end_position["value"])
-            
-    def validate_position_txt(self, value):
-        print(value)
-        return value == "" or value.isdigit()
-    
-    def on_combobox_change(self, event):    
-        print(self.columns_options.get())
-              
+    ### Utils       
     def verify_column_only_numbers(self):
         return re.match("^[0-9]+", self.columns_options.get())
     
