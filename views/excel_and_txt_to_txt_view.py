@@ -19,6 +19,7 @@ class ExcelAndTxtToTxtView(QWidget):
         self.controller = ExcelAndTxtToTxtController(self)
         self.controller.txt_loaded_signal.connect(self.on_txt_loaded)
         self.controller.excel_loaded_signal.connect(self.on_excel_loaded)
+        self.controller.process_files_finished_signal.connect(self.on_process_files_finished)
         self.excel_details = None
         self.txt_details = None
         # Variables for error control
@@ -235,29 +236,18 @@ class ExcelAndTxtToTxtView(QWidget):
     
     def on_open_excel_button_click(self):
         self.controller.open_excel()
-        # if self.excel_details == None:
-        #     return
-        # self.columns_select.addItems(self.excel_details['columns_list'])
-        # self.files_abstract_structure["excel_text"] = self.excel_details["files_abstract_text"]
-        # self.update_files_details_text()
-        #self.update_files_details_text(self.excel_details["files_abstract_text"])
         
     def on_open_txt_button_click(self):
         self.controller.open_txt()
-        # if self.txt_details == None:
-        #     return
-        # self.files_abstract_structure["txt_text"] = self.txt_details["files_abstract_text"]
-        # self.update_files_details_text()
-        #self.update_files_details_text(self.txt_details["files_abstract_text"])
     
     def on_excel_loaded(self, excel_loaded_info):
         if excel_loaded_info is None:
             QMessageBox.warning(self, "Informacion", "No se pudo cargar el archivo de Excel.")
             return
-        self.excel_details = excel_loaded_info["files_abstract_text"]
-        self.files_abstract_structure["excel_text"] = excel_loaded_info["files_abstract_text"]
+        self.excel_details = excel_loaded_info["resume"]
+        self.files_abstract_structure["excel_text"] = excel_loaded_info["resume"]
         
-        self.columns_select.addItems(excel_loaded_info['columns_list'])
+        self.columns_select.addItems(excel_loaded_info["columns_list"])
         
         self.update_files_details_text()
         self.check_if_save_button_available()
@@ -267,7 +257,7 @@ class ExcelAndTxtToTxtView(QWidget):
         if txt_loaded_info is None:
             QMessageBox.warning(self, "Informacion", "No se pudo cargar el archivo de texto.")
             return
-        self.txt_details = txt_loaded_info["files_abstract_text"]
+        self.txt_details = txt_loaded_info["resume"]
         self.files_abstract_structure["txt_text"] = self.txt_details
         self.update_files_details_text()
         #self.update_files_details_text(txt_loaded_info["files_abstract_text"])
@@ -294,32 +284,18 @@ class ExcelAndTxtToTxtView(QWidget):
             QMessageBox.warning(self, "Informacion", "La posición de inicio no puede ser mayor a la posicion de fin para analizar el documento de texto.")
             return
         
-        self.process_result_details = self.controller.process_files()
-        if self.process_result_details is not None:
+        self.controller.process_files()
+    
+    def on_process_files_finished(self, process_result_info):
+        if process_result_info is not None:
             self.save_file_button.setDisabled(False)
-        
-        #self.files_abstract.append(f"Coincidencias encontradas: {self.process_result_details["coincidences"]}")
-        #self.files_abstract.append(f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}")
-        #self.files_abstract.append(f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}")
-        # self.label_excel_wrong_data_rows = QLabel(
-        #     f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}  <a href='#'>Ver Detalles</a>"
-        # )
-        # self.label_excel_wrong_data_rows.setOpenExternalLinks(False)
-        # self.label_excel_wrong_data_rows.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        # self.label_excel_wrong_data_rows.linkActivated.connect(self.show_excel_error_details)
-        
-        # self.label_txt_wrong_data_rows = QLabel(
-        #     f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}  <a href='#'>Ver Detalles</a>"
-        # )
-        # self.label_txt_wrong_data_rows.setOpenExternalLinks(False)
-        # self.label_txt_wrong_data_rows.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        # self.label_txt_wrong_data_rows.linkActivated.connect(self.show_txt_error_details)
-        
+        self.process_result_details = process_result_info
         # Set Process Files Text
-        self.files_abstract_structure["coincidences_found"] = f"Coincidencias encontradas: {self.process_result_details["coincidences"]}<br>"
+        self.files_abstract_structure["coincidences_found"] = f"Coincidencias encontradas: {len(self.process_result_details["coincidences"])}<br>"
         self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}  <a href='show_excel_errors_details'>Ver Detalles</a><br>"
         self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}  <a href='show_txt_errors_details'>Ver Detalles</a><br>"
         self.update_files_details_text()
+        
         
         
     def update_files_details_text(self):

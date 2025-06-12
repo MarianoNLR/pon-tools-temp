@@ -9,7 +9,8 @@ class DeleteDuplicateView(QWidget):
     def __init__(self, main_frame):
         super().__init__(main_frame)
         self.delete_duplicates_controller = DeleteDuplicatesController(self)
-        
+        self.delete_duplicates_controller.file_loaded_signal.connect(self.on_file_opened)
+        self.delete_duplicates_controller.process_finished_signal.connect(self.on_process_finished)
         main_contaniner = QVBoxLayout()
         main_contaniner.setSpacing(10)
         main_contaniner.setContentsMargins(0,0,0,0)
@@ -126,20 +127,25 @@ class DeleteDuplicateView(QWidget):
         main_frame.layout().addWidget(self)
     
     def open_file(self):
-        self.delete_duplicates_controller.read_file()
-        if self.delete_duplicates_controller.file_data is not None:
+        self.delete_duplicates_controller.open_file()
+    
+    def on_file_opened(self, file_data):
+        if file_data is not None:
             self.update_file_details()
             self.process_button.setDisabled(False)
     
     def on_click_process_button(self):
         self.delete_duplicates_controller.process_file()
+        
+    
+    def on_process_finished(self):
         self.process_details.setText(f"Registros duplicados encontrados: {self.delete_duplicates_controller.duplicates_removed}")
         if self.delete_duplicates_controller.file_data is not None:
             self.save_result_button.setDisabled(False)
     
     def update_file_details(self):
         file_path = self.delete_duplicates_controller.file_path
-        file_data = self.delete_duplicates_controller.file_data
+        file_data = self.delete_duplicates_controller.file_data["data"]
         self.file_details.setText(f"""Nombre del archivo: {os.path.basename(file_path)}\n
 Tamaño: {os.path.getsize(file_path) / (1024 * 1024):.2f} MB\n
 Ultima modificación: {datetime.fromtimestamp(os.path.getmtime(file_path)).strftime("%Y-%m-%D")}\n
