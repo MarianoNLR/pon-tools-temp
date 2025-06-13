@@ -8,15 +8,16 @@ class ConfirmDialog(QDialog):
         self.label = QLabel("Hay filas con datos no numericos en el filtro seleccionado. Quiere descartar dichas filas?")
         
         # Botones
-        self.continuar_btn = QPushButton("Si")
-        self.descartar_btn = QPushButton("No")
+        self.option_yes_btn = QPushButton("Si")
+        self.option_no_btn = QPushButton("No")
+        
 
         # Layout
         layout = QVBoxLayout()
         layout.addWidget(self.label)
-        layout.addWidget(self.continuar_btn)
-        layout.addWidget(self.descartar_btn)
+        layout.addWidget(self.option_yes_btn)
+        layout.addWidget(self.option_no_btn)
         self.setLayout(layout)
 
-        self.continuar_btn.clicked.connect(lambda: self.done(1))
-        self.descartar_btn.clicked.connect(lambda: self.done(2))
+        self.option_no_btn.clicked.connect(lambda: self.done(1))
+        self.option_yes_btn.clicked.connect(lambda: self.done(2))
