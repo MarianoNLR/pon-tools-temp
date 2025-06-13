@@ -7,11 +7,13 @@ from views.loading_dialog_view import LoadingDialogView
 from views.processing_dialog_view import ProcessingDialogView
 from PySide6.QtCore import Signal, QObject
 from controllers.task_manager import TaskManager
+from components.confirm_dialog import ConfirmDialog
 
 class ExcelAndTxtToTxtController(QObject):
     txt_loaded_signal = Signal(dict)
     excel_loaded_signal = Signal(dict)
     process_files_finished_signal = Signal(dict)
+    analyze_files_finished_signal = Signal(dict)
     excel_df = pd.DataFrame()
     txt_data = {}
     task_manager = TaskManager()
@@ -22,6 +24,7 @@ class ExcelAndTxtToTxtController(QObject):
         self.view = view
         self.coincidences = {}
         self.process_result_info = {}
+        self.analyze_result_info = {}
     
     # Using static method to avoid self and prevent issues if the instance is garbage collected during thread execution.
     @staticmethod
@@ -150,35 +153,42 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
     
     # Using static method to avoid self and prevent issues if the instance is garbage collected during thread execution.
     @staticmethod
-    def process_files_on_thread(excel_df, txt_data, view):
+    def process_files_on_thread(excel_df, txt_data, view, result_choice, analyze_result_info):
         process_result_info = {}
         excel_df = excel_df
         txt_data = txt_data["txt_data"]
-        process_result_info["excel_wrong_data_rows"] = []
-        process_result_info["txt_wrong_data_rows"] = []
-        process_result_info["coincidences"] = []
+        #process_result_info["excel_wrong_data_rows"] = []
+        #process_result_info["txt_wrong_data_rows"] = []
+        process_result_info["coincidences"] = None
         coincidences = {}
-        for i, row in excel_df.iterrows():
-            if not re.match("^[0-9]+$", row[view.columns_select.currentText()]):
-                process_result_info["excel_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor no es numérico.", "row": i+1})
+        try:
+            if result_choice == 2:
+                print("Opcion SI")
+                for line in analyze_result_info["txt_wrong_data_rows"]:
+                    print("Fila mala en txt: ", line["row"])
+                    del txt_data[line["row"]]
 
-        # Control lines in txt
-        for i, line in enumerate(txt_data, start=0):
-            if not re.match("^[0-9]+$", line[int(view.txt_start_position_input.text())-1:int(view.txt_end_position_input.text())]):
-                process_result_info["txt_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({view.txt_start_position_input.text()}, {view.txt_end_position_input.text()}) no es numérico.", "row": i+1})
+                for line in analyze_result_info["excel_wrong_data_rows"]:
+                    print("Fila mala en excel: ", line["row"])
+                    excel_df = excel_df.drop(excel_df.index[line["row"]])
+                    excel_df = excel_df.reset_index(drop=True)
         
-        # Run through txt to compare with excel
-        for row in txt_data:
-            selected_column = view.columns_select.currentText()
-            txt_text = row[int(view.txt_start_position_input.text())-1:int(view.txt_end_position_input.text())]
-            
-            if txt_text in excel_df[selected_column].astype(str).tolist():
-                if txt_text not in coincidences:
+            # Run through txt to compare with excel
+            for row in txt_data:
+                selected_column = view.columns_select.currentText()
+                txt_text = row[int(view.txt_start_position_input.text())-1:int(view.txt_end_position_input.text())]
+                
+                if txt_text in excel_df[selected_column].astype(str).tolist():            
                     coincidences[txt_text] = row
-                #self.coincidences.append(row)
+                    # if txt_text not in coincidences:
+                    #     coincidences[txt_text] = row
+                    #self.coincidences.append(row)
+            
+            # Set length coincidences
+            process_result_info["coincidences"] = coincidences
+        except Exception as e:
+            print(e)
         
-        # Set length coincidences
-        process_result_info["coincidences"] = coincidences
         return process_result_info
 
     def on_process_files_finished(self, process_result_info):
@@ -189,11 +199,19 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
             # Get coincidences between excel and txt 
             # Verify if column selected from excel is numeric
             try:
+                dialog = ConfirmDialog()
+                result_choice = dialog.exec()
+                
+                if result_choice == 0:
+                    return
+                
                 self.processing_dialog = ProcessingDialogView(self.view)
+                self.processing_dialog.show()
+                
                 self.processing_dialog.show()
                 self.task_manager.run_task(
                     task_func=ExcelAndTxtToTxtController.process_files_on_thread,
-                    args=(self.excel_df, self.txt_data, self.view,),
+                    args=(self.excel_df, self.txt_data, self.view, result_choice, self.analyze_result_info),
                     on_result=self.on_process_files_finished,
                     on_error=None,
                     on_finished=self.processing_dialog.close
@@ -201,7 +219,45 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
             except Exception as e:
                 QMessageBox.warning(self, "Error", "Ocurrió un error al procesar los archivos.")
                 return
-                
+    
+    def analyze_files(self):
+        self.analyze_result_info["excel_wrong_data_rows"] = []
+        self.analyze_result_info["txt_wrong_data_rows"] = []
+        try:
+            self.processing_dialog = ProcessingDialogView(self.view)
+            self.processing_dialog.show()
+            self.task_manager.run_task(
+                task_func=ExcelAndTxtToTxtController.analyze_files_on_thread,
+                args=(self.excel_df, self.txt_data, self.analyze_result_info, self.view,),
+                on_result=self.on_analyze_file_on_thread_finished,
+                on_error=print("ERROR AL ANALIZAR"),
+                on_finished=self.processing_dialog.close
+            )
+        except Exception as e:
+            QMessageBox.warning(self, "Error", "Ocurrió un error al analizar los archivos.")
+            return
+    
+    @staticmethod
+    def analyze_files_on_thread(excel_df, txt_data, analyze_result_info, view):
+        print("HOLA")
+        try:
+            for i, row in excel_df.iterrows():
+                if not re.match("^[0-9]+$", row[view.columns_select.currentText()]):
+                    analyze_result_info["excel_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor no es numérico.", "row": i})
+
+            # Control lines in txt
+            for i, line in enumerate(txt_data["txt_data"], start=0):
+                if not re.match("^[0-9]+$", line[int(view.txt_start_position_input.text())-1:int(view.txt_end_position_input.text())]):
+                    analyze_result_info["txt_wrong_data_rows"].append({"msg": f"Fila {i+1}: El valor entre las posiciones ingresadas ({view.txt_start_position_input.text()}, {view.txt_end_position_input.text()}) no es numérico.", "row": i})
+        except Exception as e:
+            print(e)
+        return analyze_result_info
+
+    def on_analyze_file_on_thread_finished(self, analyze_result_info):
+        print(analyze_result_info)
+        self.analyze_result_info = analyze_result_info
+        self.analyze_files_finished_signal.emit(self.analyze_result_info)
+        
                    
     def write_txt(self):
             # Save coincidences in new txt              

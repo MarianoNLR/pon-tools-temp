@@ -20,12 +20,17 @@ class ExcelAndTxtToTxtView(QWidget):
         self.controller.txt_loaded_signal.connect(self.on_txt_loaded)
         self.controller.excel_loaded_signal.connect(self.on_excel_loaded)
         self.controller.process_files_finished_signal.connect(self.on_process_files_finished)
+        self.controller.analyze_files_finished_signal.connect(self.on_analyze_files_finished)
         self.excel_details = None
         self.txt_details = None
         # Variables for error control
         self.process_result_details = {}
         self.files_abstract_structure = {}
-        
+        self.analysis_result_details = {}
+        self.files_abstract_structure["excel_text"] = ""
+        self.files_abstract_structure["txt_text"] = ""
+        self.files_abstract_structure["excel_wrong_data_rows"] = ""
+        self.files_abstract_structure["txt_wrong_data_rows"] = ""
         #Setting ID to use in styles
         self.setObjectName("ExcelAndTxtToTxtView")
 
@@ -145,16 +150,57 @@ class ExcelAndTxtToTxtView(QWidget):
             }
             """)
         
+                # Process Files Button Section
+        self.analyze_files_button = QPushButton("Analizar archivos")
+        self.analyze_files_button.setAutoDefault(True)
+        self.analyze_files_button.setStyleSheet("""
+            background-color: #702525;
+            color: #ffffff;
+            padding: 5px, 10px, 10px, 10px;
+            font-size: 16px 
+        """)
+        self.analyze_files_button.setCursor(Qt.PointingHandCursor)
+        self.analyze_files_button.clicked.connect(self.on_analyze_files_button_click)
+        self.analyze_files_button.setDisabled(True)
+        self.analyze_files_button.setStyleSheet(
+            """
+            QPushButton {
+                font-size: 16px; 
+                color: white; 
+                background-color: #702525;
+                padding: 5px, 10px, 10px, 10px; 
+            }
+            
+            QPushButton:disabled {
+                background-color: #c16666;
+                color: black;
+            }
+            """)
+        
+        #Container Details Files Analysis Text
+        self.analysis_result_text_browser = QTextBrowser()
+        self.analysis_result_text_browser.setText("")
+        self.analysis_result_text_browser.setReadOnly(True)
+        self.analysis_result_text_browser.setTextInteractionFlags(Qt.TextBrowserInteraction) 
+        self.analysis_result_text_browser.anchorClicked.connect(self.show_error_details)
+        self.analysis_result_text_browser.setPlaceholderText("Aqui se mostraran los datos de los archvos")
+        self.analysis_result_text_browser.setStyleSheet("""
+            min-height: 150px;
+            max-height: 300px;
+        """)
 
         #Container Details Files Text
-        self.files_abstract = QTextBrowser()
-        self.files_abstract.setText("")
-        self.files_abstract.setReadOnly(True)
-        self.files_abstract.setTextInteractionFlags(Qt.TextBrowserInteraction) 
-        self.files_abstract.anchorClicked.connect(self.show_error_details)
-        self.files_abstract.setPlaceholderText("Seleccione los archivos y proceselos para ver la información.")
+        self.files_abstract = QLabel()
+        self.files_abstract.setText("Coincidencias encontradas: ")
+        #self.files_abstract.setReadOnly(True)
+        #self.files_abstract.setTextInteractionFlags(Qt.TextBrowserInteraction) 
+        #self.files_abstract.anchorClicked.connect(self.show_error_details)
+        #self.files_abstract.setPlaceholderText("Procese los archivos para ver información.")
         self.files_abstract.setStyleSheet("""
+            min-height: 50px;
             max-height: 300px;
+            font-size: 24px;
+            color: white;
         """)
 
         # Open Files Button Styles
@@ -200,9 +246,11 @@ class ExcelAndTxtToTxtView(QWidget):
         main_contaniner.addWidget(title)
         main_contaniner.addWidget(open_files_container)
         main_contaniner.addWidget(inputs_container)
-        main_contaniner.addStretch()
+        #main_contaniner.addStretch()
+        main_contaniner.addWidget(self.analyze_files_button)
+        main_contaniner.addWidget(self.analysis_result_text_browser)
         main_contaniner.addWidget(self.process_files_button)
-        main_contaniner.addWidget(self.files_abstract)
+        main_contaniner.addWidget(self.files_abstract, alignment=Qt.AlignCenter)
         #main_contaniner.addStretch()
         main_contaniner.addWidget(self.save_file_button, alignment=Qt.AlignCenter)
         #main_contaniner.addStretch()
@@ -234,8 +282,15 @@ class ExcelAndTxtToTxtView(QWidget):
         
         self.columns_select.addItems(excel_loaded_info["columns_list"])
         
+        self.save_file_button.setDisabled(True)
+        self.process_files_button.setDisabled(True)
+        self.files_abstract.setText("Coincidencias encontradas: ")
+        self.analysis_result_details = {}
+        self.files_abstract_structure["excel_wrong_data_rows"] = ""
+        self.files_abstract_structure["txt_wrong_data_rows"] = ""
         self.update_files_details_text()
-        self.check_if_save_button_available()
+        #self.check_if_save_button_available()
+        self.check_if_analyze_button_available()
         
     def on_txt_loaded(self, txt_loaded_info):
         
@@ -244,10 +299,49 @@ class ExcelAndTxtToTxtView(QWidget):
             return
         self.txt_details = txt_loaded_info["resume"]
         self.files_abstract_structure["txt_text"] = self.txt_details
+
+        self.save_file_button.setDisabled(True)
+        self.process_files_button.setDisabled(True)
+        self.files_abstract.setText("Coincidencias encontradas: ")
+        self.analysis_result_details = {}
+        self.files_abstract_structure["excel_wrong_data_rows"] = ""
+        self.files_abstract_structure["txt_wrong_data_rows"] = ""
         self.update_files_details_text()
         #self.update_files_details_text(txt_loaded_info["files_abstract_text"])
-        self.check_if_save_button_available()
+        #self.check_if_save_button_available()
+        self.check_if_analyze_button_available()
         
+    def on_analyze_files_button_click(self):
+        # TODO Analyze files turn on process files button
+        if not self.excel_details:
+            QMessageBox.warning(self, "Informacion", "No has seleccionado una Planilla Excel.")
+            return
+        if not self.txt_details:
+            QMessageBox.warning(self, "Informacion", "No has seleccionado un Documento de Texto.")
+            return
+        if self.columns_select.currentText() == "Selecciona una columna":
+            QMessageBox.warning(self, "Informacion", "Debes seleccionar una columna del Excel para analizar.")
+            return
+        if not self.txt_start_position_input.text():
+            QMessageBox.warning(self, "Informacion", "Debes indicar la posicion de inicio para el Documento de texto.")
+            return
+        if not self.txt_end_position_input.text():
+            QMessageBox.warning(self, "Informacion", "Debes indicar la posicion de fin para el Documento de texto.")
+            return
+        if int(self.txt_start_position_input.text()) > int(self.txt_end_position_input.text()):
+            QMessageBox.warning(self, "Informacion", "La posición de inicio no puede ser mayor a la posicion de fin para analizar el documento de texto.")
+            return
+        
+        self.controller.analyze_files()
+    
+    def on_analyze_files_finished(self, analyze_result_info):
+        self.process_files_button.setDisabled(False)
+        self.analysis_result_details["excel_wrong_data_rows"] = analyze_result_info["excel_wrong_data_rows"]
+        self.analysis_result_details["txt_wrong_data_rows"] = analyze_result_info["txt_wrong_data_rows"]
+        self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(analyze_result_info["excel_wrong_data_rows"])}  <a href='show_excel_errors_details'>Ver Detalles</a><br>"
+        self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(analyze_result_info["txt_wrong_data_rows"])}  <a href='show_txt_errors_details'>Ver Detalles</a><br>"
+        self.update_files_details_text()
+
     def on_process_files_button_click(self):
         # Alerts 
         if not self.excel_details:
@@ -276,19 +370,26 @@ class ExcelAndTxtToTxtView(QWidget):
             self.save_file_button.setDisabled(False)
         self.process_result_details = process_result_info
         # Set Process Files Text
-        self.files_abstract_structure["coincidences_found"] = f"Coincidencias encontradas: {len(self.process_result_details["coincidences"])}<br>"
-        self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}  <a href='show_excel_errors_details'>Ver Detalles</a><br>"
-        self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}  <a href='show_txt_errors_details'>Ver Detalles</a><br>"
-        self.update_files_details_text()
+        #self.files_abstract_structure["coincidences_found"] = f"Coincidencias encontradas: {len(self.process_result_details["coincidences"])}<br>"
+        # self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(self.process_result_details["excel_wrong_data_rows"])}  <a href='show_excel_errors_details'>Ver Detalles</a><br>"
+        # self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(self.process_result_details["txt_wrong_data_rows"])}  <a href='show_txt_errors_details'>Ver Detalles</a><br>"
+        #self.update_files_details_text()
+        self.files_abstract.setText(f"Coincidencias encontradas: {len(process_result_info["coincidences"])}")
+        #self.files_abstract.setHtml(f"Coincidencias encontradas: {len(process_result_info["coincidences"])}")
         
         
         
     def update_files_details_text(self):
-        self.files_abstract.setText("")
+        self.analysis_result_text_browser.setText("")
         text = ""
-        for i in self.files_abstract_structure:
-            text += self.files_abstract_structure[i]
-        self.files_abstract.setHtml(text)
+        text += self.files_abstract_structure["excel_text"]
+        text += self.files_abstract_structure["txt_text"]
+        text += self.files_abstract_structure["excel_wrong_data_rows"]
+        text += self.files_abstract_structure["txt_wrong_data_rows"]
+        self.analysis_result_text_browser.setHtml(text)
+        # for i in self.files_abstract_structure:
+        #     text += self.files_abstract_structure[i]
+        # self.analysis_result_text_browser.setHtml(text)
         
     def on_save_result_button_click(self):
         if not self.process_result_details:
@@ -307,13 +408,17 @@ class ExcelAndTxtToTxtView(QWidget):
         self.update_files_details_text()
     
     def show_excel_error_details(self):
-        self.errors_details_window = ErrorsDetailsView("Errores en el Excel", "Excel", self.process_result_details["excel_wrong_data_rows"])
+        self.errors_details_window = ErrorsDetailsView("Errores en el Excel", "Excel", self.analysis_result_details["excel_wrong_data_rows"])
         self.errors_details_window.exec()
 
     def show_txt_error_details(self):
-        self.errors_details_window = ErrorsDetailsView("Errores en el Txt", "Txt", self.process_result_details["txt_wrong_data_rows"])
+        self.errors_details_window = ErrorsDetailsView("Errores en el Txt", "Txt", self.analysis_result_details["txt_wrong_data_rows"])
         self.errors_details_window.exec()
     
-    def check_if_save_button_available(self):
+    # def check_if_save_button_available(self):
+    #     if self.excel_details and self.txt_details:
+    #         self.process_files_button.setDisabled(False)
+            
+    def check_if_analyze_button_available(self):
         if self.excel_details and self.txt_details:
-            self.process_files_button.setDisabled(False)
+            self.analyze_files_button.setDisabled(False)
