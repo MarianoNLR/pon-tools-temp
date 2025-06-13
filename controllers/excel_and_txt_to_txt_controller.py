@@ -167,13 +167,10 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
         coincidences = {}
         try:
             if result_choice == 2:
-                print("Opcion SI")
                 for line in analyze_result_info["txt_wrong_data_rows"]:
-                    print("Fila mala en txt: ", line["row"])
                     del txt_data[line["row"]]
 
                 for line in analyze_result_info["excel_wrong_data_rows"]:
-                    print("Fila mala en excel: ", line["row"])
                     excel_df = excel_df.drop(excel_df.index[line["row"]])
                     excel_df = excel_df.reset_index(drop=True)
         
@@ -234,16 +231,19 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
                 task_func=ExcelAndTxtToTxtController.analyze_files_on_thread,
                 args=(self.excel_df, self.txt_data, self.analyze_result_info, self.view,),
                 on_result=self.on_analyze_file_on_thread_finished,
-                on_error=print("ERROR AL ANALIZAR"),
+                on_error=self.analyze_files_on_error,
                 on_finished=self.processing_dialog.close
             )
         except Exception as e:
             QMessageBox.warning(self, "Error", "Ocurrió un error al analizar los archivos.")
             return
     
+    def analyze_files_on_error(self, message):
+        QMessageBox.warning(self, "Error", "Ocurrió un error al analizar los archivos.")
+        return
+    
     @staticmethod
     def analyze_files_on_thread(excel_df, txt_data, analyze_result_info, view):
-        print("HOLA")
         try:
             for i, row in excel_df.iterrows():
                 if not re.match("^[0-9]+$", row[view.columns_select.currentText()]):
@@ -258,7 +258,6 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
         return analyze_result_info
 
     def on_analyze_file_on_thread_finished(self, analyze_result_info):
-        print(analyze_result_info)
         self.analyze_result_info = analyze_result_info
         self.analyze_files_finished_signal.emit(self.analyze_result_info)
         
