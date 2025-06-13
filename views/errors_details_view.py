@@ -4,6 +4,15 @@ from PySide6.QtGui import QColor, QBrush
 from resource_path import resource_path
 
 class ErrorsDetailsView(QDialog):
+    """
+        View to show details of file errors found when they were analyzed.
+        
+        Args:
+        title (str): Title to show on the window.
+        file_type (str): The type of the file to show as information.
+        error_data (array): List of errors to show.
+    """
+    
     def __init__(self, title, file_type, error_data):
         super().__init__()
         self.setWindowTitle(title)

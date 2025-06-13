@@ -13,7 +13,11 @@ from views.errors_details_view import ErrorsDetailsView
 
 
 class ExcelAndTxtToTxtView(QWidget):
-    ### Mostrar Frame de ExcelAndTxtToTxtView
+    """
+    Cross data operation view
+    This view contains all widgets needed to execute cross data operation.
+    It uses ExcelAndTxtToTxtController to perform several processes.
+    """
     def __init__(self, main_frame):
         super().__init__(main_frame)
         

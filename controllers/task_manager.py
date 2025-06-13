@@ -2,6 +2,12 @@ from PySide6.QtCore import QThread
 from components.worker_thread import WorkerThread
 
 class TaskManager:
+    """
+    This component is in charge of run tasks on a different thread than the main
+    It works as a general manager for tasks.
+    Main function is run_task and needs the task_func which is what we want to excute on a different thread and callbacks to execute depending on the result.
+    """
+    
     def __init__(self):
         self._active_threads = []
 
@@ -18,6 +24,7 @@ class TaskManager:
         worker.finished.connect(worker.deleteLater)
         thread.finished.connect(thread.deleteLater)
 
+        # Connect differents results if a function was passed to run_task
         if on_result:
             worker.result.connect(on_result)
         if on_error:

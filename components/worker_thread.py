@@ -1,7 +1,11 @@
-from PySide6.QtCore import QObject, Signal, QThread, Slot
-import time
+from PySide6.QtCore import QObject, Signal, Slot
 
 class WorkerThread(QObject):
+    """
+    Threaded worker that executes a task function in a separate thread.
+
+    This class is designed to run background tasks by receiving a callable ('task_func')
+    """
     finished = Signal()
     result = Signal(object)
     error = Signal(str)
@@ -17,16 +21,15 @@ class WorkerThread(QObject):
     @Slot()
     def run(self):
         try:
-            if not self._is_canceled:
-                result = self._task_func(*self._args)
-                self.result.emit(result)
+            result = self._task_func(*self._args)
+            self.result.emit(result)
         except Exception as e:
             self.error.emit(str(e))
         finally:
             self.finished.emit()
 
-    def cancel(self):
-        self._is_canceled = True
+    # def cancel(self):
+    #     self._is_canceled = True
 
-    def is_canceled(self):
-        return self._is_canceled
+    # def is_canceled(self):
+    #     return self._is_canceled

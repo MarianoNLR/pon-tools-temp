@@ -8,6 +8,10 @@ from views.processing_dialog_view import ProcessingDialogView
 from PySide6.QtCore import Signal, QObject
 
 class SupportedFileTypes(Enum):
+    """
+    Enum that represent file's type supported by the application.
+    Provides methods for obtaining supported extension and identifying the file type from a path.
+    """
     XLSX = "xlsx",
     XLS = "xls",
     TXT = "txt",
@@ -29,7 +33,17 @@ class SupportedFileTypes(Enum):
             raise ValueError("Tipo de archivo no soportado.")
 
 class DeleteDuplicatesController(QObject):
+    """
+    Controller to execute every method related to delete duplicates option.
+    Open, Load and Process files.
+    """
+    
+    """
+    Dict that maps input file types to default save types, improving UX when saving after removing duplicates.
+    Ensures the save dialog suggests the same type as the original file.
+    """
     FILE_TYPE_SETTINGS = {
+        
         SupportedFileTypes.TXT: {
             "default_name": "",
             "default_filter": "Archivos de texto (*.txt)",

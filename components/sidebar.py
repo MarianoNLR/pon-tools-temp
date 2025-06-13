@@ -6,6 +6,14 @@ from PySide6.QtCore import Qt
 from resource_path import resource_path
 
 class Sidebar(QWidget):
+    """
+    Graphic Component that works as a sidebar of the application.
+    It contains the available options and it is placed inside main container ('root')
+    
+    Args:
+        root (QWidget): Father which contains Sidebar.
+        main_content (QWidget): Reference to main content to interact from sidebar.
+    """
     def __init__(self, root, main_content):
         super().__init__(root)
         

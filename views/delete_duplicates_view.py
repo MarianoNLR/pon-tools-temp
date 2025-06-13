@@ -6,6 +6,11 @@ import os
 from datetime import datetime
 
 class DeleteDuplicateView(QWidget):
+    """
+    View that contains all widgets needed to execute delete duplicates option.
+    Args:
+        main_frame (QWidget): the main frame where this view is placed.
+    """
     def __init__(self, main_frame):
         super().__init__(main_frame)
         self.delete_duplicates_controller = DeleteDuplicatesController(self)
@@ -39,7 +44,8 @@ class DeleteDuplicateView(QWidget):
         self.select_file_button.clicked.connect(self.open_file)
         self.file_details_layout.addWidget(self.select_file_button, alignment = Qt.AlignHCenter)
         self.select_file_button.setCursor(Qt.PointingHandCursor)
-        # # File Detailes title and details
+        
+        ### File Detailes title and details
         
         self.file_details_title = QLabel("Detalles del archivo", self)
         self.file_details_title.setStyleSheet("font-size: 18px; color: white; font-weight: bold;")
@@ -72,7 +78,7 @@ class DeleteDuplicateView(QWidget):
         self.process_button.setDisabled(True)
         self.process_button.setCursor(Qt.PointingHandCursor)
         
-        # # File Process Details
+        # File Process Details
         self.process_details = QTextEdit("Detalles del proceso aparecerán aquí.", self)
         self.process_details.setDisabled(True)
         self.process_details.setStyleSheet(
@@ -126,23 +132,27 @@ class DeleteDuplicateView(QWidget):
         self.setLayout(main_contaniner)
         main_frame.layout().addWidget(self)
     
+    # Method executed when open file button is clicked.
     def open_file(self):
         self.delete_duplicates_controller.open_file()
     
+    # Method executed when file opening process is finished
     def on_file_opened(self, file_data):
         if file_data is not None:
             self.update_file_details()
             self.process_button.setDisabled(False)
     
+    # Method executed when process button is clicked.
     def on_click_process_button(self):
         self.delete_duplicates_controller.process_file()
         
-    
+    # Method executed when process file is finished
     def on_process_finished(self):
         self.process_details.setText(f"Registros duplicados encontrados: {self.delete_duplicates_controller.duplicates_removed}")
         if self.delete_duplicates_controller.file_data is not None:
             self.save_result_button.setDisabled(False)
     
+    # Update text with file selected details
     def update_file_details(self):
         file_path = self.delete_duplicates_controller.file_path
         file_data = self.delete_duplicates_controller.file_data["data"]

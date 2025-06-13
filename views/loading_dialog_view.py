@@ -2,6 +2,9 @@ from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 
 class LoadingDialogView(QDialog):
+    """
+        Dialog used as a feedback to user to indicate a file is being loaded.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Cargando...")

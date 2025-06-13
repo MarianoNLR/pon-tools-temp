@@ -1,13 +1,17 @@
 from PySide6.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout
 
 class ConfirmDialog(QDialog):
+    """
+    Dialog used to confirm whether the user wants to discard 
+    rows with errors when performing cross data operation.
+    """
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Confirmar acción")
 
         self.label = QLabel("Hay filas con datos no numericos en el filtro seleccionado. Quiere descartar dichas filas?")
         
-        # Botones
+        # Buttons
         self.option_yes_btn = QPushButton("Si")
         self.option_no_btn = QPushButton("No")
         

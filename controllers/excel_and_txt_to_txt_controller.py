@@ -10,6 +10,10 @@ from controllers.task_manager import TaskManager
 from components.confirm_dialog import ConfirmDialog
 
 class ExcelAndTxtToTxtController(QObject):
+    """
+    This component executes every method to perform cross data option.
+    Load, Analyze and Process files to find coincidences. 
+    """
     txt_loaded_signal = Signal(dict)
     excel_loaded_signal = Signal(dict)
     process_files_finished_signal = Signal(dict)

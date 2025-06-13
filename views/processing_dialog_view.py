@@ -2,6 +2,9 @@ from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 
 class ProcessingDialogView(QDialog):
+    """
+        Simple dialog used to indicate file are being processed in the background.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Procesando...")
