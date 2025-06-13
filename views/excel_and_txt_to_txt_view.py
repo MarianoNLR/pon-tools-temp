@@ -7,6 +7,7 @@ import re
 from tkinter import messagebox
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QGridLayout, QPushButton, QLineEdit, QTextEdit, QHBoxLayout, QComboBox, QLabel, QMessageBox, QTextBrowser
 from PySide6.QtCore import Qt, QThread
+from PySide6.QtGui import QTextCursor
 from PySide6.QtGui import QIntValidator
 from views.errors_details_view import ErrorsDetailsView
 
@@ -291,6 +292,7 @@ class ExcelAndTxtToTxtView(QWidget):
         self.update_files_details_text()
         #self.check_if_save_button_available()
         self.check_if_analyze_button_available()
+        self.analysis_result_text_browser.moveCursor(QTextCursor.End)
         
     def on_txt_loaded(self, txt_loaded_info):
         
@@ -310,6 +312,7 @@ class ExcelAndTxtToTxtView(QWidget):
         #self.update_files_details_text(txt_loaded_info["files_abstract_text"])
         #self.check_if_save_button_available()
         self.check_if_analyze_button_available()
+        self.analysis_result_text_browser.moveCursor(QTextCursor.End)
         
     def on_analyze_files_button_click(self):
         # TODO Analyze files turn on process files button
@@ -341,6 +344,7 @@ class ExcelAndTxtToTxtView(QWidget):
         self.files_abstract_structure["excel_wrong_data_rows"] = f"Errores encontrados en el Excel: {len(analyze_result_info["excel_wrong_data_rows"])}  <a href='show_excel_errors_details'>Ver Detalles</a><br>"
         self.files_abstract_structure["txt_wrong_data_rows"] = f"Errores encontrados en el Txt: {len(analyze_result_info["txt_wrong_data_rows"])}  <a href='show_txt_errors_details'>Ver Detalles</a><br>"
         self.update_files_details_text()
+        self.analysis_result_text_browser.moveCursor(QTextCursor.End)
 
     def on_process_files_button_click(self):
         # Alerts 
@@ -410,10 +414,12 @@ class ExcelAndTxtToTxtView(QWidget):
     def show_excel_error_details(self):
         self.errors_details_window = ErrorsDetailsView("Errores en el Excel", "Excel", self.analysis_result_details["excel_wrong_data_rows"])
         self.errors_details_window.exec()
+        self.analysis_result_text_browser.moveCursor(QTextCursor.End)
 
     def show_txt_error_details(self):
         self.errors_details_window = ErrorsDetailsView("Errores en el Txt", "Txt", self.analysis_result_details["txt_wrong_data_rows"])
         self.errors_details_window.exec()
+        self.analysis_result_text_browser.moveCursor(QTextCursor.End)
     
     # def check_if_save_button_available(self):
     #     if self.excel_details and self.txt_details:
