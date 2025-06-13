@@ -79,7 +79,7 @@ class ExcelAndTxtToTxtView(QWidget):
         columns_select_layout.addWidget(columns_select_label)
         columns_select_layout.addWidget(self.columns_select)
         columns_select_container.setLayout(columns_select_layout)
-        
+        self.columns_select.currentTextChanged.connect(self.on_combo_box_changed)
         columns_options_layout.addWidget(columns_select_container)
         columns_options_container.setLayout(columns_options_layout)
         columns_select_label.setStyleSheet("font-size: 16px; color: #ffffff")
@@ -111,6 +111,9 @@ class ExcelAndTxtToTxtView(QWidget):
         txt_end_position_container.setLayout(txt_end_position_layout)
         self.txt_end_position_input.setValidator(QIntValidator())
         txt_end_position_label.setStyleSheet("font-size: 16px; color: #ffffff")
+        
+        self.txt_start_position_input.textChanged.connect(self.on_position_input_changed)
+        
         
         position_inputs_layout.addWidget(txt_start_position_container)
         position_inputs_layout.addWidget(txt_end_position_container)
@@ -334,7 +337,8 @@ class ExcelAndTxtToTxtView(QWidget):
         if int(self.txt_start_position_input.text()) > int(self.txt_end_position_input.text()):
             QMessageBox.warning(self, "Informacion", "La posición de inicio no puede ser mayor a la posicion de fin para analizar el documento de texto.")
             return
-        
+        self.files_abstract.setText("Coincidencias encontradas: ")
+        self.save_file_button.setDisabled(True)
         self.controller.analyze_files()
     
     def on_analyze_files_finished(self, analyze_result_info):
@@ -428,3 +432,11 @@ class ExcelAndTxtToTxtView(QWidget):
     def check_if_analyze_button_available(self):
         if self.excel_details and self.txt_details:
             self.analyze_files_button.setDisabled(False)
+    
+    def on_position_input_changed(self):
+        self.save_file_button.setDisabled(True)
+        self.process_files_button.setDisabled(True)
+    
+    def on_combo_box_changed(self):
+        self.save_file_button.setDisabled(True)
+        self.process_files_button.setDisabled(True)
