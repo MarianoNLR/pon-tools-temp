@@ -15,7 +15,7 @@ class MainApp(QMainWindow):
         super().__init__()
         # Configuración de la ventana principal
         self.setWindowTitle("PON Tools")
-        self.setGeometry(100, 100, 900, 700)
+        self.setGeometry(100, 100, 1300, 800)
         self.setMinimumSize(800, 700)
 
         # Crear el widget principal
