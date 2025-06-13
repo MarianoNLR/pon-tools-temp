@@ -147,8 +147,8 @@ class DeleteDuplicateView(QWidget):
         self.delete_duplicates_controller.process_file()
         
     # Method executed when process file is finished
-    def on_process_finished(self):
-        self.process_details.setText(f"Registros duplicados encontrados: {self.delete_duplicates_controller.duplicates_removed}")
+    def on_process_finished(self, data):
+        self.process_details.setText(f"Registros duplicados encontrados: {data["duplicates_removed"]}")
         if self.delete_duplicates_controller.file_data is not None:
             self.save_result_button.setDisabled(False)
     

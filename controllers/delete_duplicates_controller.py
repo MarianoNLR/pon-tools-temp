@@ -62,7 +62,7 @@ class DeleteDuplicatesController(QObject):
     }
     
     file_loaded_signal = Signal(list)
-    process_finished_signal = Signal(list)
+    process_finished_signal = Signal(dict)
     task_manager = TaskManager()
     def __init__(self, view):
         super().__init__()
@@ -127,10 +127,14 @@ class DeleteDuplicatesController(QObject):
             task_func=DeleteDuplicatesController.remove_duplicates,
             args=(self.file_data,),
             on_result=self.on_removed_duplicates,
-            on_error=None,
+            on_error=self.on_remove_error,
             on_finished=processing_dialog.close
         )
+    
+    def on_remove_error(self, error_message):
+        QMessageBox.critical(self.view, "Error al cargar el archivo", error_message)
         
+    
     def on_load_file_error(self, error_message):
         self.loading_dialog.close()
         QMessageBox.critical(self.view, "Error al cargar el archivo", error_message)
@@ -138,32 +142,38 @@ class DeleteDuplicatesController(QObject):
     # Using static method to avoid self and prevent issues if the instance is garbage collected during thread execution. 
     @staticmethod
     def remove_duplicates(file_data):
-        result = None
-        if isinstance(file_data["data"], pd.DataFrame):
+        result = {}
+        result["data"] = {}
+        try:
+            if isinstance(file_data["data"], pd.DataFrame):
             # Process DataFrame to remove duplicates
-            result["data"] = file_data["data"].drop_duplicates()
-            duplicates_removed = len(file_data["data"]) - len(result)
-            if not duplicates_removed:
-                duplicates_removed = 0
-            
-        elif isinstance(file_data["data"], list):
-            # Process list to remove duplicates
-            # unique_lines = list(set(self.file_data))
-            
-            # this way if the order of lines must be the same
-            result = {}
-            result["data"] = {}
-            for line in file_data["data"]:
-                result["data"][line] = None
-            #file_data["data"] = unique_lines
-        if result is not None: 
-            result["duplicates_removed"] = len(file_data["data"]) - len(result["data"])
+                result["data"] = file_data["data"].drop_duplicates()
+                # if not duplicates_removed:
+                #     duplicates_removed = 0
+                if result is not None:
+                    result["duplicates_removed"] = len(file_data["data"]) - len(result) 
+            elif isinstance(file_data["data"], list):
+                # Process list to remove duplicates
+                # unique_lines = list(set(self.file_data))
+                
+                # this way if the order of lines must be the same
+                for line in file_data["data"]:
+                    result["data"][line] = None
+                #file_data["data"] = unique_lines
+            if result is not None: 
+                result["duplicates_removed"] = len(file_data["data"]) - len(result["data"])
+        except Exception as e:
+            raise TypeError(e)
+        
         return result
     
     def on_removed_duplicates(self, file_data):
-        self.file_data_without_duplicates = file_data["data"]
-        self.duplicates_removed = file_data["duplicates_removed"]
-        self.process_finished_signal.emit(self.file_data_without_duplicates)
+        try:
+            self.file_data_without_duplicates = file_data["data"]
+            self.duplicates_removed = file_data["duplicates_removed"]
+            self.process_finished_signal.emit(file_data)
+        except Exception as e:
+            print(e)
     
     
     def save_result(self):
