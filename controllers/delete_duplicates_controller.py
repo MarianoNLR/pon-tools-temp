@@ -94,22 +94,25 @@ class DeleteDuplicatesController(QObject):
             task_func=DeleteDuplicatesController.read_file,
             args=(self.file_path,),
             on_result=self.file_loaded,
-            on_error=None,
+            on_error=self.on_load_file_error,
             on_finished=loading_dialog.close
         )
         
     # Using static method to avoid self and prevent issues if the instance is garbage collected during thread execution.
     @staticmethod
     def read_file(file_path):
-        file_data = {}
-        file_data["file_type"] = SupportedFileTypes.get_file_extension(file_path)
-        if file_data["file_type"] == SupportedFileTypes.XLS or file_data["file_type"] == SupportedFileTypes.XLSX:
-            file_data["data"] = pd.read_excel(file_path).astype(str)
-        elif file_data["file_type"] == SupportedFileTypes.TXT:
-            with open(file_path, "r", encoding="utf-8", newline="") as txt:
-                file_data["data"] = txt.readlines()
-                file_data["data"] = [line.replace("\r\n", "\n") for line in file_data["data"]]
-        return file_data
+        try:
+            file_data = {}
+            file_data["file_type"] = SupportedFileTypes.get_file_extension(file_path)
+            if file_data["file_type"] == SupportedFileTypes.XLS or file_data["file_type"] == SupportedFileTypes.XLSX:
+                file_data["data"] = pd.read_excel(file_path).astype(str)
+            elif file_data["file_type"] == SupportedFileTypes.TXT:
+                with open(file_path, "r", encoding="windows-1252", newline="") as txt:
+                    file_data["data"] = txt.readlines()
+                    file_data["data"] = [line.replace("\r\n", "\n") for line in file_data["data"]]
+            return file_data
+        except Exception as e:
+            raise ValueError(f"Error al leer el archivo Txt: {str(e)}")
                 
     def file_loaded(self, file_data):
         self.file_data = file_data
@@ -132,7 +135,7 @@ class DeleteDuplicatesController(QObject):
         )
     
     def on_remove_error(self, error_message):
-        QMessageBox.critical(self.view, "Error al cargar el archivo", error_message)
+        QMessageBox.critical(self.view, "Error al remover un elemento", error_message)
         
     
     def on_load_file_error(self, error_message):
@@ -198,7 +201,7 @@ class DeleteDuplicatesController(QObject):
             if self.file_data["file_type"] == SupportedFileTypes.XLS or self.file_data["file_type"] == SupportedFileTypes.XLSX:
                 self.file_data_without_duplicates.to_excel(save_path, index=False)
             elif self.file_data["file_type"] == SupportedFileTypes.TXT:
-                with open(save_path, "w", encoding="utf-8", newline="\n") as file:
+                with open(save_path, "w", encoding="windows-1252", newline="\n") as file:
                     for line in self.file_data_without_duplicates:
                         file.write(f"{line}")
             else:

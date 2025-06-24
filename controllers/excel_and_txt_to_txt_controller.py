@@ -74,7 +74,7 @@ class ExcelAndTxtToTxtController(QObject):
     @staticmethod
     def load_txt(file_path):
         try:
-            with open(file_path, "r", encoding="utf-8", newline="") as txt:
+            with open(file_path, "r", encoding="windows-1252", newline="") as txt:
                 txt_data = {}
                 lines = txt.readlines()
                 txt_data["txt_data"] = [line.replace("\r\n", "\n") for line in lines]
@@ -200,11 +200,13 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
             # Get coincidences between excel and txt 
             # Verify if column selected from excel is numeric
             try:
-                dialog = ConfirmDialog()
-                result_choice = dialog.exec()
+                result_choice = 0
+                if self.analyze_result_info["excel_wrong_data_rows"] or self.analyze_result_info["txt_wrong_data_rows"]:
+                    dialog = ConfirmDialog()
+                    result_choice = dialog.exec()
                 
-                if result_choice == 0:
-                    return
+                    if result_choice == 0:
+                        return
                 
                 self.processing_dialog = ProcessingDialogView(self.view)
                 self.processing_dialog.show()
@@ -272,7 +274,7 @@ Total de lineas: {len(self.txt_data["txt_data"])}</p>"""
             )
             
             if save_path:
-                with open(save_path, 'w', encoding="utf-8", errors="ignore", newline="\n") as file:
+                with open(save_path, 'w', encoding="windows-1252", errors="ignore", newline="\n") as file:
                     for row in self.process_result_info["coincidences"].values():
                         file.write(f"{row}")
             
